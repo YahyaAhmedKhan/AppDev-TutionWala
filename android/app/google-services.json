@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "338058822341",
+    "project_id": "appdevfinalproj-a1ce5",
+    "storage_bucket": "appdevfinalproj-a1ce5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:338058822341:android:5a4be2f563beb27b24e6ac",
+        "android_client_info": {
+          "package_name": "com.example.tution_wala"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "338058822341-s7h3uiol2b99fhar4kdndb5s34c40o0o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_iW4alll91BbTfK8ev9dlwuk0hzueVac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "338058822341-s7h3uiol2b99fhar4kdndb5s34c40o0o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
