@@ -1,46 +1,15 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:tution_wala/service/auth_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tution_wala/providers/user_auth_state.dart';
 
-// class UserHomePage extends StatelessWidget {
-//   const UserHomePage({super.key});
+class UserHomePage extends ConsumerWidget {
+  const UserHomePage({super.key});
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: ,
-//     );
-//   }
-// }
-
-
-// class homePageContent extends ConsumerWidget {
-//   const homePageContent({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     Future<String> getRole() async {
-//       final authService = ref.read(authServiceProvider);
-
-//     if (ref.read(authServiceProvider).getCurrentUser() != null){
-//       String email = authService.getCurrentUser()!.email!;
-
-//     }
-
-//     return "";
-
-    
-    
-//     }
-
-
-
-//     return Center(
-//       child: Builder(builder: (context){
-//         AsyncValue<String> data = getRole();
-
-//       } ),
-      
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userAuthProvider);
+    return Scaffold(
+      body: Center(child: Text(user!.role)),
+    );
+  }
+}

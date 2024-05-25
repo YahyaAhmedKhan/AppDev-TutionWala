@@ -8,7 +8,7 @@ import 'package:tution_wala/pages/login-page.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:tution_wala/providers/firestore_provider.dart';
 import 'package:tution_wala/providers/toggle_provider.dart';
-import 'package:tution_wala/service/auth_service.dart';
+import 'package:tution_wala/service/auth_service1.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 import 'package:tution_wala/widgets/toggle_switch.dart';
 
@@ -43,15 +43,16 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     final role = ref.read(toggleSwitchProvider);
     final roleMap = {"Student": "STUDENT", "Tutor": "TUTOR"};
 
-    AuthService authService = ref.read(authServiceProvider);
+    AuthService authService = AuthService();
 
     try {
       final UserCredential userCredential = await authService
           .signUpWithEmailAndPassword(email, password, roleMap[role]!);
-      print("new user via authservice:");
 
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => const LoginPage()));
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+        (route) => false,
+      );
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           duration: Duration(seconds: 1, milliseconds: 500),
           backgroundColor: Colors.green,
@@ -71,9 +72,6 @@ class _SignupPageState extends ConsumerState<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    // print(
-    //     "Current user: ${ref.read(authServiceProvider).getCurrentUser() == null ? ref.read(authServiceProvider).getCurrentUser()!.email : null}");
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(

@@ -1,4 +1,15 @@
-name: my_script
+name: tution_wala
+
+packages:
+  - ./
+
 scripts:
-  print:
-    run: echo "Hello World"
+  analyze:
+    exec: flutter analyze
+
+  format:
+    exec: dart format --set-exit-if-changed
+
+  generate:
+    description: generate code
+    exec: dart run build_runner watch -d

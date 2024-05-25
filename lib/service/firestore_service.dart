@@ -3,9 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/retry.dart';
 
 class FirestoreService {
-  final FirebaseFirestore _firebaseFirestore;
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
-  FirestoreService(this._firebaseFirestore);
+  FirestoreService._internal();
+
+  static final FirestoreService _instance = FirestoreService._internal();
+
+  factory FirestoreService() {
+    return _instance;
+  }
 
   Stream<QuerySnapshot> getUsersStream() {
     return _firebaseFirestore.collection('users').snapshots();
@@ -24,10 +30,23 @@ class FirestoreService {
       // throw Exception(e.message);
     }
   }
-}
 
-// Provider for the FirestoreService
-final firestoreServiceProvider = Provider<FirestoreService>((ref) {
-  final firestore = FirebaseFirestore.instance;
-  return FirestoreService(firestore);
-});
+  Future<String?> getUserRole(String email) async {
+    try {
+      QuerySnapshot querySnapshot = await _firebaseFirestore
+          .collection('user-roles')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot doc = querySnapshot.docs.first;
+        return doc['role'];
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching user role: $e');
+      return null;
+    }
+  }
+}

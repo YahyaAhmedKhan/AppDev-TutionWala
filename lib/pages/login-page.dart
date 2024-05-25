@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tution_wala/helper/auth_functions.dart';
+import 'package:tution_wala/models/my_user.dart';
 import 'package:tution_wala/pages/signup-page.dart';
-import 'package:tution_wala/service/auth_service.dart';
+import 'package:tution_wala/pages/user-home-page.dart';
+import 'package:tution_wala/providers/user_auth_state.dart';
+import 'package:tution_wala/service/auth_service1.dart';
+import 'package:tution_wala/service/firestore_service.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -42,8 +46,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     print("Signing in with: $email, $password");
 
     try {
-      AuthService authService = ref.read(authServiceProvider);
+      AuthService authService = AuthService();
       await authService.signInWithEmailAndPassword(email, password);
+      String? currRole = await FirestoreService().getUserRole(email);
+      final currUser = MyUser(email: email, role: currRole!);
+      ref.read(userAuthProvider.notifier).setUser(currUser);
+
+      print(ref.read(userAuthProvider));
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => UserHomePage()),
+        (route) => false,
+      );
+
       print("Sign in successful");
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -69,9 +84,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // print(
-    //     "Current userrrrrr: ${ref.read(authServiceProvider).userCredential!.user!.email}");
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: true,
@@ -80,15 +92,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         actions: [
           IconButton(
               onPressed: () {
-                // handleSignOut();
-                ref.read(authServiceProvider).signOut();
+                AuthService().signOut();
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginPage()),
                   (route) => false,
                 );
               },
-              icon: const Icon(Icons.logout))
+              icon: const Icon(Icons.logout)),
+          IconButton(
+              onPressed: () {
+                print(AuthService().getCurrentUserEmail());
+              },
+              icon: const Icon(Icons.person))
         ],
       ),
       body: SingleChildScrollView(
@@ -96,34 +112,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       ),
     );
   }
-
-  // Widget _buildBackground() {
-  //   return Container(
-  //     child: Stack(
-  //       children: [
-  //         // Blurred background image
-  //         BackdropFilter(
-  //           filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-  //           child: Container(
-  //             decoration: const BoxDecoration(
-  //               image: DecorationImage(
-  //                 image: AssetImage(
-  //                     'lib/assets/bg.jpeg'), // Replace with your image path
-  //                 fit: BoxFit.cover, // Adjust as needed (cover, contain, etc.)
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-
-  //         // White overlay with opacity
-  //         Container(
-  //           color: const Color.fromARGB(255, 113, 147, 70)
-  //               .withOpacity(0.4), // Adjust opacity for desired effect
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Padding loginBody(BuildContext context, WidgetRef ref) {
     return Padding(

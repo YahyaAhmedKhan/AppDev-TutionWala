@@ -8,12 +8,26 @@ import 'package:tution_wala/providers/toggle_provider.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 
 class AuthService {
-  final FirebaseAuth _firebaseAuth;
-  final FirestoreService _firestoreService;
-  final GoogleSignIn _googleSignIn;
-  late AuthState _authState;
+  // final FirebaseAuth _firebaseAuth;
+  // final FirestoreService _firestoreService;
+  // final GoogleSignIn _googleSignIn;
+  // late AuthState _authState;
 
-  AuthService(this._firebaseAuth, this._firestoreService, this._googleSignIn);
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirestoreService _firestoreService = FirestoreService();
+  AuthState _authState =
+      AuthState(isLoggedIn: FirebaseAuth.instance.currentUser != null);
+
+  AuthService._internal();
+
+  static final AuthService _instance = AuthService._internal();
+
+  factory AuthService() {
+    return _instance;
+  }
+
+  void a() {}
 
   Stream<User?> authStateChanges() => _firebaseAuth.authStateChanges();
 
@@ -21,7 +35,7 @@ class AuthService {
     try {
       UserCredential userCredential = await _firebaseAuth
           .signInWithEmailAndPassword(email: email, password: password);
-      _authState.user = userCredential.user;
+
       return true;
     } on FirebaseAuthException catch (e) {
       throw e;
@@ -34,10 +48,13 @@ class AuthService {
       UserCredential newUserCreds = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
       _authState.user = newUserCreds.user;
-      print("firestore in :${_firestoreService}");
+
       DocumentReference? documentReference =
           await _firestoreService.addUserRole(email, role);
       print(documentReference);
+
+      _firebaseAuth.signOut();
+
       return newUserCreds;
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message);
@@ -60,29 +77,19 @@ class AuthService {
     return _firebaseAuth.currentUser;
   }
 
-  String? getCurrentUserRole() {
-    return _authState.role;
+  String? getCurrentUserEmail() {
+    if (_firebaseAuth.currentUser == null)
+      return null;
+    else
+      return _firebaseAuth.currentUser!.email;
   }
 
   void handleSignOut() async {}
 }
 
-final authServiceProvider = Provider<AuthService>((ref) {
-  final firebaseAuth = FirebaseAuth.instance;
-  final firestoreService = ref.read(firestoreServiceProvider);
-  final googleSignIn = GoogleSignIn();
-
-  final authState = AuthState(
-    user: firebaseAuth.currentUser,
-  );
-
-  return AuthService(firebaseAuth, firestoreService, googleSignIn);
-});
-
 class AuthState {
   User? user;
-  final bool isLoggedIn;
-  String? role;
+  bool isLoggedIn;
 
   AuthState({
     this.user,
