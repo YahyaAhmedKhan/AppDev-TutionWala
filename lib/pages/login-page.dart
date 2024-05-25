@@ -39,17 +39,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final email = emailController.text;
     final password = passwordController.text;
 
-    print("signing up with: $email, $password");
+    print("Signing in with: $email, $password");
 
     try {
-      // final UserCredential userCredential = await FirebaseAuth.instance
-      //     .signInWithEmailAndPassword(email: email, password: password);
-      // User user = userCredential.user!;
       AuthService authService = ref.read(authServiceProvider);
       await authService.signInWithEmailAndPassword(email, password);
-      print("current user creds: ${authService.userCredential}");
-
-      print("user signed in: $email");
+      print("Sign in successful");
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
@@ -85,7 +80,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         actions: [
           IconButton(
               onPressed: () {
-                handleSignOut();
+                // handleSignOut();
+                ref.read(authServiceProvider).signOut();
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginPage()),

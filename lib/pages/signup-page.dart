@@ -46,10 +46,6 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     AuthService authService = ref.read(authServiceProvider);
 
     try {
-      // final UserCredential userCredential = await FirebaseAuth.instance
-      //     .createUserWithEmailAndPassword(email: email, password: password);
-      // firestoreService.addUser(email, role);
-
       final UserCredential userCredential = await authService
           .signUpWithEmailAndPassword(email, password, roleMap[role]!);
       print("new user via authservice:");
@@ -64,18 +60,20 @@ class _SignupPageState extends ConsumerState<SignupPage> {
             style: TextStyle(fontWeight: FontWeight.w400, fontSize: 18),
           )));
     } on FirebaseAuthException catch (e) {
-      print("could not sign up: $e");
+      print("Sign up failed: $e");
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           duration: const Duration(seconds: 1, milliseconds: 500),
-          content: Text(
-            e.code,
-            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 18),
-          )));
+          content: Text(e.code,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w400, fontSize: 18))));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // print(
+    //     "Current user: ${ref.read(authServiceProvider).getCurrentUser() == null ? ref.read(authServiceProvider).getCurrentUser()!.email : null}");
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
@@ -85,14 +83,11 @@ class _SignupPageState extends ConsumerState<SignupPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               logoPicture(context),
-              const Text(
-                "Sign Up",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 34,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              const Text("Sign Up",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 34,
+                      fontWeight: FontWeight.w700)),
               const SizedBox(height: 20),
               TextField(
                 controller: emailController,
@@ -184,35 +179,36 @@ class _SignupPageState extends ConsumerState<SignupPage> {
         print("user creds: $userCreds");
         navigateToHomePage(context);
       },
-      child: SizedBox(
-        width: double.infinity,
-        child: Expanded(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 14, 0, 14),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "lib/assets/google-logo.png",
-                  height: 18.0,
-                  width: 24,
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(left: 24, right: 8),
-                  child: Text(
-                    'Sign in with Google',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.black54,
-                      fontWeight: FontWeight.w600,
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 14, 0, 14),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    "lib/assets/google-logo.png",
+                    height: 18.0,
+                    width: 24,
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 24, right: 8),
+                    child: Text(
+                      'Sign in with Google',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

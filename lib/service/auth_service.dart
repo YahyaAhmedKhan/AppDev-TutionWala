@@ -2,22 +2,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tution_wala/providers/toggle_provider.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth;
   final FirestoreService _firestoreService;
+  final GoogleSignIn _googleSignIn;
+  late AuthState _authState;
 
-  UserCredential? userCredential;
-  AuthService(this._firebaseAuth, this._firestoreService);
+  AuthService(this._firebaseAuth, this._firestoreService, this._googleSignIn);
 
   Stream<User?> authStateChanges() => _firebaseAuth.authStateChanges();
 
   Future<bool> signInWithEmailAndPassword(String email, String password) async {
     try {
-      userCredential = await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: password);
+      UserCredential userCredential = await _firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password);
+      _authState.user = userCredential.user;
       return true;
     } on FirebaseAuthException catch (e) {
       throw e;
@@ -27,102 +31,65 @@ class AuthService {
   Future<UserCredential> signUpWithEmailAndPassword(
       String email, String password, String role) async {
     try {
-      UserCredential newUser = await _firebaseAuth
+      UserCredential newUserCreds = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
-      userCredential = newUser;
+      _authState.user = newUserCreds.user;
       print("firestore in :${_firestoreService}");
       DocumentReference? documentReference =
           await _firestoreService.addUserRole(email, role);
       print(documentReference);
-      return newUser;
+      return newUserCreds;
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message);
     }
   }
 
   Future<void> signOut() async {
-    await _firebaseAuth.signOut();
+    try {
+      await _firebaseAuth.signOut();
+      await _googleSignIn.signOut();
+      print("Sign out successful!");
+      print("Current user: ${_firebaseAuth.currentUser}");
+      print("Current google user: ${_googleSignIn.currentUser}");
+    } catch (e) {
+      print("Error signing out, error: $e");
+    }
   }
 
   User? getCurrentUser() {
     return _firebaseAuth.currentUser;
   }
+
+  String? getCurrentUserRole() {
+    return _authState.role;
+  }
+
+  void handleSignOut() async {}
 }
 
-// Update the authServiceProvider to include the FirestoreService
 final authServiceProvider = Provider<AuthService>((ref) {
   final firebaseAuth = FirebaseAuth.instance;
   final firestoreService = ref.read(firestoreServiceProvider);
-  return AuthService(firebaseAuth, firestoreService);
+  final googleSignIn = GoogleSignIn();
+
+  final authState = AuthState(
+    user: firebaseAuth.currentUser,
+  );
+
+  return AuthService(firebaseAuth, firestoreService, googleSignIn);
 });
 
 class AuthState {
-  final UserCredential? userCredential;
+  User? user;
   final bool isLoggedIn;
-  final String? errorMessage;
+  String? role;
 
   AuthState({
-    this.userCredential,
+    this.user,
     this.isLoggedIn = false,
-    this.errorMessage,
   });
+
+  Future<void> fetchRole() async {
+    if (user != null) {}
+  }
 }
-
-// Future<UserCredential?> signInWithGoogle() async {
-//   try {
-//     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-//     final GoogleSignInAuthentication? googleAuth =
-//         await googleUser?.authentication;
-
-//     final credential = GoogleAuthProvider.credential(
-//       accessToken: googleAuth?.accessToken,
-//       idToken: googleAuth?.idToken,
-//     );
-
-//     return await FirebaseAuth.instance.signInWithCredential(credential);
-//   } on Exception catch (e) {
-//     // TODO
-//     print('exception->$e');
-//   }
-// }
-
-// Future<bool> signOutFromGoogle() async {
-//   try {
-//     await GoogleSignIn().signOut();
-//     return true;
-//   } catch (e) {
-//     // Handle sign out errorxp
-//     return false;
-//   }
-// }
-
-// void handleSignOut() async {
-//   try {
-//     GoogleSignIn googleSignIn = GoogleSignIn();
-
-//     if (await googleSignIn.isSignedIn() != null) {
-//       await googleSignIn.signOut();
-
-//       print(
-//           "signed out google account, current google account: ${googleSignIn.currentUser}");
-//     }
-
-//     await FirebaseAuth.instance.signOut();
-//     await googleSignIn.signOut();
-//     print(
-//         "after signing out, firebase user: ${FirebaseAuth.instance.currentUser}, google user: ${googleSignIn.currentUser}");
-//   } catch (e) {
-//     print("Error signing out, error: $e");
-//   }
-// }
-
-// void navigateToHomePage(BuildContext context) {
-//   // Navigator.pushAndRemoveUntil(
-//   //   context,
-//   //   MaterialPageRoute(
-//   //       builder: (context) =>
-//   //           HomePage(email: FirebaseAuth.instance.currentUser!.email!)),
-//   //   (route) => false,
-//   // );
-// }
