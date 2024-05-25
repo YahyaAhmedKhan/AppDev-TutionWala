@@ -26,7 +26,7 @@ Future<bool> signOutFromGoogle() async {
     await GoogleSignIn().signOut();
     return true;
   } catch (e) {
-    // Handle sign out error
+    // Handle sign out errorxp
     return false;
   }
 }

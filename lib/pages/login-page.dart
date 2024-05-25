@@ -1,17 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tution_wala/helper/auth_functions.dart';
 import 'package:tution_wala/pages/signup-page.dart';
+import 'package:tution_wala/service/auth_service.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   void handleSignOut() async {
@@ -32,33 +35,29 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void handleSignIn() async {
+  void handleSignIn(WidgetRef ref) async {
     final email = emailController.text;
     final password = passwordController.text;
 
     print("signing up with: $email, $password");
 
     try {
-      final UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-      User user = userCredential.user!;
+      // final UserCredential userCredential = await FirebaseAuth.instance
+      //     .signInWithEmailAndPassword(email: email, password: password);
+      // User user = userCredential.user!;
+      AuthService authService = ref.read(authServiceProvider);
+      await authService.signInWithEmailAndPassword(email, password);
+      print("current user creds: ${authService.userCredential}");
+
       print("user signed in: $email");
-      // Navigator.pushAndRemoveUntil(
-      //   context,
-      //   MaterialPageRoute(
-      //       builder: (context) => HomePage(
-      //             email: FirebaseAuth.instance.currentUser!.email!,
-      //           )),
-      //   (route) => false,
-      // );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
           "Error: ${e.code}",
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
         ),
         backgroundColor: Colors.red,
-        duration: Duration(seconds: 1),
+        duration: const Duration(seconds: 1),
       ));
       print("code: ${e.code}");
     } catch (e) {
@@ -75,11 +74,14 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("Current user: ${FirebaseAuth.instance.currentUser}");
+    // print(
+    //     "Current userrrrrr: ${ref.read(authServiceProvider).userCredential!.user!.email}");
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         actions: [
           IconButton(
               onPressed: () {
@@ -94,148 +96,212 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 130, 20, 0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "Login",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+        child: loginBody(context, ref),
+      ),
+    );
+  }
+
+  // Widget _buildBackground() {
+  //   return Container(
+  //     child: Stack(
+  //       children: [
+  //         // Blurred background image
+  //         BackdropFilter(
+  //           filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+  //           child: Container(
+  //             decoration: const BoxDecoration(
+  //               image: DecorationImage(
+  //                 image: AssetImage(
+  //                     'lib/assets/bg.jpeg'), // Replace with your image path
+  //                 fit: BoxFit.cover, // Adjust as needed (cover, contain, etc.)
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+
+  //         // White overlay with opacity
+  //         Container(
+  //           color: const Color.fromARGB(255, 113, 147, 70)
+  //               .withOpacity(0.4), // Adjust opacity for desired effect
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Padding loginBody(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 60, 20, 0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+              height: MediaQuery.of(context).size.height * .25,
+              child: Image.asset("lib/assets/tutionwala-logo.png")),
+          const SizedBox(height: 20),
+          Text(
+            'Login',
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 20),
+          TextFormField(
+            controller: emailController,
+            decoration: InputDecoration(
+              labelText: 'Email',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              prefixIcon: Icon(Icons.email),
+            ),
+            keyboardType: TextInputType.emailAddress,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your email';
+              }
+              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Please enter a valid email address';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          TextFormField(
+            controller: passwordController,
+            decoration: InputDecoration(
+              suffixIcon: IconButton(
+                  onPressed: toggleShowPassword,
+                  icon: Icon(
+                      _isObscure ? Icons.visibility_off : Icons.visibility)),
+              labelText: 'Password',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              prefixIcon: Icon(Icons.lock),
+            ),
+            obscureText: _isObscure,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your password';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 20),
+          loginButtton(ref),
+          const SizedBox(
+            height: 14,
+          ),
+          dontHaveAccountLine(context),
+          const SizedBox(
+            height: 14,
+          ),
+          googleSignInButton(context),
+        ],
+      ),
+    );
+  }
+
+  RichText dontHaveAccountLine(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 16,
+        ),
+        children: [
+          const TextSpan(
+            text: "Don't have an account? ",
+          ),
+          TextSpan(
+              text: "Sign up",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => SignupPage()),
+                      (route) => false);
+                }),
+        ],
+      ),
+    );
+  }
+
+  ElevatedButton googleSignInButton(BuildContext context) {
+    return ElevatedButton(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          const EdgeInsets.symmetric(vertical: 14),
+        ),
+        shape: MaterialStateProperty.all<OutlinedBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+        ),
+      ),
+      onPressed: () async {
+        UserCredential? userCreds = await signInWithGoogle();
+        print("user creds: $userCreds");
+        navigateToHomePage(context);
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            "lib/assets/google-logo.png",
+            height: 18.0,
+            width: 24,
+          ),
+          const Padding(
+            padding: EdgeInsets.only(left: 24, right: 8),
+            child: Text(
+              'Sign in with Google',
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.black54,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  SizedBox loginButtton(WidgetRef ref) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () => handleSignIn(ref),
+        style: ButtonStyle(
+            elevation: MaterialStateProperty.all(2),
+            backgroundColor:
+                MaterialStateProperty.all<Color>(const Color(0xffbcec7e)),
+            shape: MaterialStateProperty.all<OutlinedBorder>(
+              RoundedRectangleBorder(
+                side: const BorderSide(
+                  color: Colors.transparent,
                 ),
+                borderRadius: BorderRadius.circular(10.0),
               ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  hintText: "Email",
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: passwordController,
-                obscureText: _isObscure,
-                decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                      onPressed: toggleShowPassword,
-                      icon: Icon(_isObscure
-                          ? Icons.visibility_off
-                          : Icons.visibility)),
-                  hintText: "Password",
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: handleSignIn,
-                  style: ButtonStyle(
-                      shape: MaterialStateProperty.all<OutlinedBorder>(
-                    RoundedRectangleBorder(
-                      side: const BorderSide(
-                        color: Colors.transparent,
-                      ),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  )),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      "Login",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              GestureDetector(
-                onTap: () {
-                  // Navigate to the sign-up page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const SignupPage()), // Replace SignUpPage with the actual name of your sign-up page class
-                  );
-                },
-                child: const Text(
-                  "Don't have an account? Sign up",
-                  style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ElevatedButton(
-                style: ButtonStyle(
-                    shape: MaterialStateProperty.all<OutlinedBorder>(
-                  RoundedRectangleBorder(
-                    side: const BorderSide(
-                      color: Colors.transparent,
-                    ),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                )),
-                onPressed: () async {
-                  UserCredential? userCreds = await signInWithGoogle();
-                  print("user creds: $userCreds");
-                  navigateToHomePage(context);
-                },
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 14, 0, 14),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            "lib/assets/google-logo.png",
-                            height: 18.0,
-                            width: 24,
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 24, right: 8),
-                            child: Text(
-                              'Sign in with Google',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            )),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: Text(
+            "Login",
+            style: TextStyle(
+              fontSize: 22,
+              // fontFamily: ,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
