@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tution_wala/models/my_user.dart';
+import 'package:tution_wala/models/user_model.dart';
 
-class UserAuthState extends StateNotifier<MyUser?> {
+class UserAuthState extends StateNotifier<UserModel?> {
   UserAuthState() : super(null);
 
-  void setUser(MyUser user) {
+  void setUser(UserModel user) {
     state = user;
   }
 
@@ -14,6 +14,7 @@ class UserAuthState extends StateNotifier<MyUser?> {
   }
 }
 
-final userAuthProvider = StateNotifierProvider<UserAuthState, MyUser?>((ref) {
+final userAuthProvider =
+    StateNotifierProvider<UserAuthState, UserModel?>((ref) {
   return UserAuthState();
 });

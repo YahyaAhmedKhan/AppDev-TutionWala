@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tution_wala/helper/auth_functions.dart';
-import 'package:tution_wala/models/my_user.dart';
+import 'package:tution_wala/models/user_model.dart';
+import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/signup-page.dart';
 import 'package:tution_wala/pages/user-home-page.dart';
 import 'package:tution_wala/providers/user_auth_state.dart';
@@ -19,8 +20,20 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  late TextEditingController emailController = TextEditingController();
+  late TextEditingController passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    bool autofill = true;
+
+    emailController =
+        TextEditingController(text: autofill ? "a@email.com" : null);
+    passwordController =
+        TextEditingController(text: autofill ? "123456" : null);
+  }
+
   void handleSignOut() async {
     try {
       GoogleSignIn googleSignIn = GoogleSignIn();
@@ -49,13 +62,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       AuthService authService = AuthService();
       await authService.signInWithEmailAndPassword(email, password);
       String? currRole = await FirestoreService().getUserRole(email);
-      final currUser = MyUser(email: email, role: currRole!);
+      final currUser = UserModel(email: email, role: currRole!);
       ref.read(userAuthProvider.notifier).setUser(currUser);
 
       print(ref.read(userAuthProvider));
 
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => UserHomePage()),
+        MaterialPageRoute(builder: (context) => AuthCheckPage()),
         (route) => false,
       );
 
@@ -103,6 +116,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           IconButton(
               onPressed: () {
                 print(AuthService().getCurrentUserEmail());
+                print(AuthService().getCurrentUser() != null
+                    ? AuthService().getCurrentUser()!.uid
+                    : null);
               },
               icon: const Icon(Icons.person))
         ],

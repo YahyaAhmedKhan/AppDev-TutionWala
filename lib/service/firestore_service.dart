@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/retry.dart';
+import 'package:tution_wala/models/account.dart';
+import 'package:tution_wala/models/student.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
@@ -49,4 +52,16 @@ class FirestoreService {
       return null;
     }
   }
+
+  Future<DocumentSnapshot> getAccountSnapshotById(String docId) async {
+    CollectionReference accountsCollection =
+        _firebaseFirestore.collection("accounts");
+
+    DocumentSnapshot documentSnapshot =
+        await accountsCollection.doc(docId).get();
+    return documentSnapshot;
+  }
+
+  Future<DocumentSnapshot> makeStudentAccount(
+      Account account, Student student) {}
 }

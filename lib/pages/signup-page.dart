@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tution_wala/helper/auth_functions.dart';
+import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/login-page.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:tution_wala/providers/firestore_provider.dart';
@@ -50,7 +51,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
           .signUpWithEmailAndPassword(email, password, roleMap[role]!);
 
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const LoginPage()),
+        MaterialPageRoute(builder: (context) => AuthCheckPage()),
         (route) => false,
       );
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -256,16 +257,20 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                 borderRadius: BorderRadius.circular(10.0),
               ),
             )),
-        child: const Padding(
+        child: Padding(
           padding: EdgeInsets.symmetric(vertical: 12),
-          child: Text(
-            "Sign Up",
-            style: TextStyle(
-              fontSize: 22,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: false
+              ? const CircularProgressIndicator(
+                  color: Colors.black,
+                )
+              : Text(
+                  "Sign Up",
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
         ),
       ),
     );

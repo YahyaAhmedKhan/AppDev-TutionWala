@@ -53,7 +53,7 @@ class AuthService {
           await _firestoreService.addUserRole(email, role);
       print(documentReference);
 
-      _firebaseAuth.signOut();
+      // _firebaseAuth.signOut();
 
       return newUserCreds;
     } on FirebaseAuthException catch (e) {
