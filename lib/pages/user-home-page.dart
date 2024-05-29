@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tution_wala/pages/login-page.dart';
-import 'package:tution_wala/providers/user_auth_state.dart';
+import 'package:tution_wala/providers/auth_state_notifier.dart';
 import 'package:tution_wala/service/auth_service1.dart';
 
 class UserHomePage extends ConsumerWidget {

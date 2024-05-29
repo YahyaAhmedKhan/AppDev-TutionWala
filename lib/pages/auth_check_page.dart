@@ -6,6 +6,7 @@ import 'package:tution_wala/models/account.dart';
 import 'package:tution_wala/pages/create_account_page.dart';
 import 'package:tution_wala/pages/login-page.dart';
 import 'package:tution_wala/pages/user-home-page.dart';
+import 'package:tution_wala/providers/auth_state_notifier.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 import 'package:tution_wala/style/font_style.dart';
 
@@ -26,30 +27,40 @@ class _AuthCheckerState extends ConsumerState<AuthCheckPage> {
   Future<void> _checkAuthState() async {
     User? firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
-      // User is signed in, fetch account data
+      // User is signed in, fetch Account data
       DocumentSnapshot accountDoc =
           await FirestoreService().getAccountSnapshotById(firebaseUser.uid);
+
+      // if Account is made completely, redirect to User home page
       if (accountDoc.exists) {
         Account account = Account.fromFirestore(accountDoc);
-        ref.read(accountProvider.notifier).state = account;
+
+        AuthStateNotifier authStateNotifier =
+            ref.read(authStateProvider.notifier);
+        authStateNotifier.login(account);
+
+        print(ref.read(authStateProvider).account!.role!);
         // Navigate to home page
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => UserHomePage()),
+          MaterialPageRoute(builder: (context) => const UserHomePage()),
         );
-      } else {
-        // Handle the case where the account document does not exist
+      }
+      // if Account not made, redirect to Account Creation
+      else {
         print('Account document does not exist.');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => CreateAccountPage()),
         );
       }
+
+      // if not signed in, redirect to Login Page
     } else {
       // User is not signed in, show login page
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     }
   }
@@ -57,7 +68,7 @@ class _AuthCheckerState extends ConsumerState<AuthCheckPage> {
   @override
   Widget build(BuildContext context) {
     // While checking auth state, show a loading indicator
-    return Scaffold(
+    return const Scaffold(
       body: Center(child: CircularProgressIndicator()),
     );
   }

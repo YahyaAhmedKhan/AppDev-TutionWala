@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tution_wala/helper/auth_functions.dart';
-import 'package:tution_wala/models/user_model.dart';
+import 'package:tution_wala/models/auth_state.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/signup-page.dart';
 import 'package:tution_wala/pages/user-home-page.dart';
-import 'package:tution_wala/providers/user_auth_state.dart';
+import 'package:tution_wala/providers/auth_state_notifier.dart';
 import 'package:tution_wala/service/auth_service1.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 
@@ -62,10 +62,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       AuthService authService = AuthService();
       await authService.signInWithEmailAndPassword(email, password);
       String? currRole = await FirestoreService().getUserRole(email);
-      final currUser = UserModel(email: email, role: currRole!);
-      ref.read(userAuthProvider.notifier).setUser(currUser);
-
-      print(ref.read(userAuthProvider));
+      // final currUser = AuthState(email: email, role: currRole!);
+      // ref.read(userAuthProvider.notifier).setUser(currUser);
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => AuthCheckPage()),

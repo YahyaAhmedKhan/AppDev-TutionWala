@@ -6,13 +6,14 @@ class Account {
   final String role;
   final String? studentRef;
   final String? tutorRef;
+  final String? id;
 
-  Account({
-    required this.email,
-    required this.role,
-    required this.studentRef,
-    required this.tutorRef,
-  });
+  Account(
+      {required this.email,
+      required this.role,
+      this.studentRef,
+      this.tutorRef,
+      this.id});
 
   factory Account.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -22,6 +23,15 @@ class Account {
       studentRef: data['studentRef'],
       tutorRef: data['tutorRef'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'role': role,
+      'studentRef': studentRef,
+      'tutorRef': tutorRef,
+    };
   }
 }
 

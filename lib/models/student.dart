@@ -1,24 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tution_wala/models/contract.dart';
 import 'package:tution_wala/models/review.dart';
 
-@immutable
 class Student {
-  final String accountRef;
+  String? accountRef;
   final String availability;
   final List<Contract> contracts;
   final String firstName;
   final String lastName;
   final List<String> subjects;
 
-  const Student({
-    required this.accountRef,
+  Student({
+    this.accountRef,
     required this.availability,
     required this.contracts,
     required this.firstName,
     required this.lastName,
     required this.subjects,
   });
+  factory Student.fromFirestore(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return Student.fromJson(data);
+  }
 
   factory Student.fromJson(Map<String, dynamic> json) {
     return Student(

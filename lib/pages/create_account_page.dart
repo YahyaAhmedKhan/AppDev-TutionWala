@@ -4,7 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tution_wala/models/account.dart';
+import 'package:tution_wala/models/student.dart';
+import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/user-home-page.dart';
+import 'package:tution_wala/service/auth_service1.dart';
+import 'package:tution_wala/service/firestore_service.dart';
 import 'package:tution_wala/style/color_style.dart';
 
 class CreateAccountPage extends ConsumerStatefulWidget {
@@ -27,6 +32,12 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
   ]; // Add your subjects here
   final _availabilityOptions = ['Online', 'Physical', 'Hybrid'];
 
+  final availMap = {
+    'Online': 'online',
+    'Physical': 'physical',
+    'Hybird': 'hybrid'
+  };
+
   void _nextStep() {
     if (_currentStep < 2) {
       setState(() {
@@ -46,30 +57,45 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
   }
 
   void _submitForm() async {
+    // if form validation passed
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
 
-      User? firebaseUser = FirebaseAuth.instance.currentUser;
-      if (firebaseUser != null) {
-        await FirebaseFirestore.instance
-            .collection('accounts')
-            .doc(firebaseUser.uid)
-            .set({
-          'firstName': _firstName,
-          'lastName': _lastName,
-          'subjects': _subjects,
-          'availability': _availability,
-          'email': firebaseUser.email,
-          'role': 'student', // or 'tutor', depending on your app logic
-          'studentRef': '', // Update as needed
-          'tutorRef': '', // Update as needed
-        });
+      // if one availability is selected
+      if (_availability.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Please select an your availability.")));
+      }
 
-        // Navigate to the user's home page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => UserHomePage()),
-        );
+      FirestoreService firestoreService = FirestoreService();
+
+      try {
+        String? email = AuthService().getCurrentUserEmail();
+        String? role = await firestoreService.getUserRole(email!);
+
+        List<String> subjectsLowerCase =
+            _subjects.map((e) => e.toLowerCase()).toList();
+
+        String availabilityLowerCase = _availability.toLowerCase();
+        Account account = Account(
+            email: email, role: role!, id: AuthService().getCurrentUser()!.uid);
+
+        Student student = Student(
+            availability: availabilityLowerCase,
+            contracts: [],
+            firstName: _firstName,
+            lastName: _lastName,
+            subjects: subjectsLowerCase);
+
+        DocumentReference accountRef =
+            await firestoreService.makeStudentAccount(account, student);
+
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => AuthCheckPage()));
+
+        print("Account successfully made: $accountRef");
+      } catch (e) {
+        print("error making account: $e");
       }
     }
   }
@@ -132,6 +158,7 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
                     },
                     onSaved: (value) {
                       _lastName = value ?? '';
+                      print(_lastName);
                     },
                   ),
                 ],
@@ -164,18 +191,22 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
             Step(
               title: Text('Availability'),
               content: Column(
-                children: _availabilityOptions.map((option) {
-                  return RadioListTile(
-                    title: Text(option),
-                    value: option,
-                    groupValue: _availability,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _availability = value ?? '';
-                      });
-                    },
-                  );
-                }).toList(),
+                children: [
+                  Column(
+                    children: _availabilityOptions.map((option) {
+                      return RadioListTile(
+                        title: Text(option),
+                        value: option,
+                        groupValue: _availability,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _availability = value ?? '';
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
               isActive: _currentStep >= 2,
               state: _currentStep >= 2 ? StepState.complete : StepState.indexed,
@@ -188,7 +219,42 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   // Spacer(),
-
+                  Row(
+                    children: [
+                      Expanded(
+                          child: MaterialButton(
+                              elevation: 1,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(17)),
+                              color: Color.fromARGB(255, 188, 227, 255),
+                              onPressed: () {
+                                _submitForm();
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "submit",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 22),
+                                    ),
+                                    Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: Colors.white,
+                                      size: 35,
+                                    )
+                                  ],
+                                ),
+                              ))),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     children: [
                       Expanded(
@@ -220,6 +286,7 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
                               ))),
                     ],
                   ),
+
                   SizedBox(
                     height: 14,
                   ),
@@ -254,14 +321,6 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
                               ))),
                     ],
                   ),
-                  // TextButton(
-                  //   onPressed: details.onStepCancel,
-                  //   child: Text('Back'),
-                  // ),
-                  // TextButton(
-                  //   onPressed: details.onStepContinue,
-                  //   child: Text('Next'),
-                  // ),
                 ],
               ),
             );
