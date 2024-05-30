@@ -7,6 +7,7 @@ import 'package:tution_wala/providers/auth_state_notifier.dart';
 import 'package:tution_wala/providers/tutors_provder.dart';
 import 'package:tution_wala/service/auth_service1.dart';
 import 'package:tution_wala/style/color_style.dart';
+import 'package:tution_wala/widgets/tutor_list.dart';
 
 class UserHomePage extends ConsumerStatefulWidget {
   const UserHomePage({super.key});
@@ -47,7 +48,8 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
     final authState = ref.read(authStateProvider);
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 202, 255, 202),
+      // backgroundColor: const Color.fromARGB(255, 202, 255, 202),
+      backgroundColor: ColorStyles.primaryGreen,
       appBar: AppBar(
         leading: Builder(builder: (context) {
           return IconButton(

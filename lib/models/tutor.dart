@@ -11,17 +11,18 @@ class Tutor {
   final List<String> subjects;
   final List<String> days;
   final double hourlyRate;
+  double? rating;
 
-  Tutor({
-    this.accountRef,
-    required this.availability,
-    required this.contracts,
-    required this.firstName,
-    required this.lastName,
-    required this.subjects,
-    required this.days,
-    required this.hourlyRate,
-  });
+  Tutor(
+      {this.accountRef,
+      required this.availability,
+      required this.contracts,
+      required this.firstName,
+      required this.lastName,
+      required this.subjects,
+      required this.days,
+      required this.hourlyRate,
+      this.rating});
 
   factory Tutor.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -45,6 +46,7 @@ class Tutor {
           .map((day) => day as String)
           .toList(),
       hourlyRate: json['hourlyRate'] as double,
+      rating: json['rating'] as double,
     );
   }
 

@@ -46,6 +46,11 @@ dependencies:
   riverpod_lint: ^2.3.9
   melos: ^3.4.0
   flutter_floating_bottom_bar: ^1.2.0
+  flutter_rating_bar: ^4.0.1
+  flutter_rating_stars: ^1.0.3+4
+  font_awesome_flutter: ^10.7.0
+  date_picker_plus: ^4.0.0
+  async_button_builder: ^3.0.0+1
 
 dev_dependencies:
   flutter_test:
