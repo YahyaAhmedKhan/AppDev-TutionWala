@@ -25,6 +25,8 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
   List<String> _subjects = [];
   String _availability = '';
 
+  bool _isAsyncCallRunning = false;
+
   final _subjectOptions = [
     'Math',
     'Science',
@@ -58,45 +60,58 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
 
   void _submitForm() async {
     // if form validation passed
+
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
 
-      // if one availability is selected
-      if (_availability.isEmpty) {
+      setState(() {
+        _isAsyncCallRunning = true;
+      });
+
+      if (_availability.isNotEmpty) {
+        FirestoreService firestoreService = FirestoreService();
+        try {
+          String? email = AuthService().getCurrentUserEmail();
+          String? role = await firestoreService.getUserRole(email!);
+
+          List<String> subjectsLowerCase =
+              _subjects.map((e) => e.toLowerCase()).toList();
+
+          String availabilityLowerCase = _availability.toLowerCase();
+          Account account = Account(
+              email: email,
+              role: role!,
+              id: AuthService().getCurrentUser()!.uid);
+
+          Student student = Student(
+              availability: availabilityLowerCase,
+              contracts: [],
+              firstName: _firstName.trim(),
+              lastName: _lastName.trim(),
+              subjects: subjectsLowerCase);
+
+          DocumentReference accountRef =
+              await firestoreService.makeStudentAccount(account, student);
+
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => AuthCheckPage()));
+
+          print("Account successfully made: $accountRef");
+        } catch (e) {
+          print("error making account: $e");
+        } finally {
+          setState(() {
+            _isAsyncCallRunning = false;
+          });
+        }
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Please select an your availability.")));
       }
 
-      FirestoreService firestoreService = FirestoreService();
-
-      try {
-        String? email = AuthService().getCurrentUserEmail();
-        String? role = await firestoreService.getUserRole(email!);
-
-        List<String> subjectsLowerCase =
-            _subjects.map((e) => e.toLowerCase()).toList();
-
-        String availabilityLowerCase = _availability.toLowerCase();
-        Account account = Account(
-            email: email, role: role!, id: AuthService().getCurrentUser()!.uid);
-
-        Student student = Student(
-            availability: availabilityLowerCase,
-            contracts: [],
-            firstName: _firstName,
-            lastName: _lastName,
-            subjects: subjectsLowerCase);
-
-        DocumentReference accountRef =
-            await firestoreService.makeStudentAccount(account, student);
-
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => AuthCheckPage()));
-
-        print("Account successfully made: $accountRef");
-      } catch (e) {
-        print("error making account: $e");
-      }
+      setState(() {
+        _isAsyncCallRunning = false;
+      });
     }
   }
 
@@ -140,6 +155,10 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your first name';
+                      } else if (!value.contains(RegExp(r'^[a-zA-Z\s]+$'))) {
+                        return 'First name should only contain text';
+                      } else if (value.length > 50) {
+                        return 'First name should not exceed 50 characters';
                       }
                       return null;
                     },
@@ -153,12 +172,15 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your last name';
+                      } else if (!value.contains(RegExp(r'^[a-zA-Z\s]+$'))) {
+                        return 'Last name should only contain text';
+                      } else if (value.length > 50) {
+                        return 'Last name should not exceed 50 characters';
                       }
                       return null;
                     },
                     onSaved: (value) {
                       _lastName = value ?? '';
-                      print(_lastName);
                     },
                   ),
                 ],
@@ -219,39 +241,42 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   // Spacer(),
-                  Row(
-                    children: [
-                      Expanded(
-                          child: MaterialButton(
-                              elevation: 1,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(17)),
-                              color: Color.fromARGB(255, 188, 227, 255),
-                              onPressed: () {
-                                _submitForm();
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      "submit",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 22),
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right_rounded,
-                                      color: Colors.white,
-                                      size: 35,
-                                    )
-                                  ],
-                                ),
-                              ))),
-                    ],
-                  ),
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //         child: MaterialButton(
+                  //             elevation: 1,
+                  //             shape: RoundedRectangleBorder(
+                  //                 borderRadius: BorderRadius.circular(17)),
+                  //             color: Color.fromARGB(255, 188, 227, 255),
+                  //             onPressed: _isAsyncCallRunning
+                  //                 ? null
+                  //                 : () {
+                  //                     // _submitForm();
+                  //                     dummy();
+                  //                   },
+                  //             child: const Padding(
+                  //               padding: EdgeInsets.symmetric(vertical: 10),
+                  //               child: Row(
+                  //                 mainAxisSize: MainAxisSize.min,
+                  //                 children: [
+                  //                   Text(
+                  //                     "submit",
+                  //                     style: TextStyle(
+                  //                         color: Colors.white,
+                  //                         fontWeight: FontWeight.w700,
+                  //                         fontSize: 22),
+                  //                   ),
+                  //                   Icon(
+                  //                     Icons.chevron_right_rounded,
+                  //                     color: Colors.white,
+                  //                     size: 35,
+                  //                   )
+                  //                 ],
+                  //               ),
+                  //             ))),
+                  //   ],
+                  // ),
                   SizedBox(
                     height: 10,
                   ),
@@ -262,27 +287,36 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
                               elevation: 1,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(17)),
-                              color: Color.fromARGB(255, 126, 220, 4),
-                              onPressed: details.onStepContinue,
-                              child: const Padding(
+                              color: const Color.fromARGB(255, 126, 220, 4),
+                              disabledColor: Color.fromARGB(255, 193, 239, 132),
+                              onPressed: _isAsyncCallRunning
+                                  ? null
+                                  : details.onStepContinue,
+                              child: Padding(
                                 padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      "Next",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 22),
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right_rounded,
-                                      color: Colors.white,
-                                      size: 35,
-                                    )
-                                  ],
-                                ),
+                                child: _isAsyncCallRunning
+                                    ? Center(
+                                        child: Transform.scale(
+                                            scale: 0.5,
+                                            child: CircularProgressIndicator()),
+                                      )
+                                    : const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Next",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 22),
+                                          ),
+                                          Icon(
+                                            Icons.chevron_right_rounded,
+                                            color: Colors.white,
+                                            size: 35,
+                                          )
+                                        ],
+                                      ),
                               ))),
                     ],
                   ),

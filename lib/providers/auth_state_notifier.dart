@@ -19,6 +19,10 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
   void logout() {
     state = AuthState(isLoggedin: false);
   }
+
+  void updateRole(String role) {
+    state = state.copy(role: role);
+  }
 }
 
 final authStateProvider =

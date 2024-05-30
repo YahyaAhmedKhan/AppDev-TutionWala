@@ -7,7 +7,6 @@ import 'package:tution_wala/helper/auth_functions.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/login-page.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
-import 'package:tution_wala/providers/firestore_provider.dart';
 import 'package:tution_wala/providers/toggle_provider.dart';
 import 'package:tution_wala/service/auth_service1.dart';
 import 'package:tution_wala/service/firestore_service.dart';
@@ -28,6 +27,8 @@ class _SignupPageState extends ConsumerState<SignupPage> {
 
   bool _isObscure = true; // Variable to track password visibility
 
+  bool _isAsyncCallRunning = false;
+
   void toggleObscure() {
     setState(() {
       _isObscure = !_isObscure;
@@ -45,6 +46,10 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     final roleMap = {"Student": "STUDENT", "Tutor": "TUTOR"};
 
     AuthService authService = AuthService();
+
+    setState(() {
+      _isAsyncCallRunning = true;
+    });
 
     try {
       final UserCredential userCredential = await authService
@@ -68,6 +73,17 @@ class _SignupPageState extends ConsumerState<SignupPage> {
           content: Text(e.code,
               style:
                   const TextStyle(fontWeight: FontWeight.w400, fontSize: 18))));
+    } catch (e) {
+      print("Sign up failed: $e");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: const Duration(seconds: 1, milliseconds: 500),
+          content: Text("$e",
+              style:
+                  const TextStyle(fontWeight: FontWeight.w400, fontSize: 18))));
+    } finally {
+      setState(() {
+        _isAsyncCallRunning = false;
+      });
     }
   }
 
@@ -243,35 +259,38 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   SizedBox signUpButton(WidgetRef ref) {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () => handleSignUp(ref),
-        style: ButtonStyle(
-            // elevation: MaterialStateProperty.all(2),
-            backgroundColor:
-                MaterialStateProperty.all<Color>(const Color(0xffbcec7e)),
-            shape: MaterialStateProperty.all<OutlinedBorder>(
-              RoundedRectangleBorder(
-                // side: const BorderSide(
-                //     color: Colors.black,
-                //     ),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            )),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: false
-              ? const CircularProgressIndicator(
-                  color: Colors.black,
-                )
-              : Text(
-                  "Sign Up",
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+      height: 55,
+      child: MaterialButton(
+        onPressed: _isAsyncCallRunning
+            ? null
+            : () {
+                if (checkPasswordsMatch())
+                  handleSignUp(ref);
+                else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Passwords don't match")));
+                }
+              },
+        color: const Color(0xffbcec7e),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
         ),
+        child: _isAsyncCallRunning
+            ? Center(
+                child: Transform.scale(
+                  scale: 0.5,
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : Text(
+                "Sign Up",
+                style: TextStyle(
+                  fontSize: 22,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
   }

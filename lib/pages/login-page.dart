@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tution_wala/helper/auth_functions.dart';
+import 'package:tution_wala/models/account.dart';
 import 'package:tution_wala/models/auth_state.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/signup-page.dart';
@@ -22,6 +24,8 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   late TextEditingController emailController = TextEditingController();
   late TextEditingController passwordController = TextEditingController();
+
+  bool _isAsyncCallRunning = false;
 
   @override
   void initState() {
@@ -58,12 +62,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     print("Signing in with: $email, $password");
 
+    setState(() {
+      _isAsyncCallRunning = true;
+    });
+
     try {
       AuthService authService = AuthService();
-      await authService.signInWithEmailAndPassword(email, password);
-      String? currRole = await FirestoreService().getUserRole(email);
-      // final currUser = AuthState(email: email, role: currRole!);
-      // ref.read(userAuthProvider.notifier).setUser(currUser);
+      User user = await authService.signInWithEmailAndPassword(email, password);
+
+      // final role = await FirestoreService().getUserRole(user.email!);
+      // if (role == null) {
+      //   throw Exception("Could not find role for email: $email");
+      // }
+      // ref
+      //     .read(authStateProvider.notifier)
+      //     .login(Account(email: user.email!, role: role!));
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => AuthCheckPage()),
@@ -83,6 +96,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       print("code: ${e.code}");
     } catch (e) {
       // print(e);
+    } finally {
+      setState(() {
+        _isAsyncCallRunning = false;
+      });
     }
   }
 
@@ -276,32 +293,36 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   SizedBox loginButtton(WidgetRef ref) {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () => handleSignIn(ref),
-        style: ButtonStyle(
-            elevation: MaterialStateProperty.all(2),
-            backgroundColor:
-                MaterialStateProperty.all<Color>(const Color(0xffbcec7e)),
-            shape: MaterialStateProperty.all<OutlinedBorder>(
-              RoundedRectangleBorder(
-                side: const BorderSide(
-                  color: Colors.transparent,
-                ),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            )),
-        child: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: Text(
-            "Login",
-            style: TextStyle(
-              fontSize: 22,
-              // fontFamily: ,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
+      height: 60,
+      child: MaterialButton(
+        disabledColor: Color.fromARGB(181, 191, 243, 122),
+        onPressed: _isAsyncCallRunning ? null : () => handleSignIn(ref),
+        color: const Color(0xffbcec7e),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(
+            color: Colors.transparent,
           ),
+          borderRadius: BorderRadius.circular(10.0),
         ),
+        child: _isAsyncCallRunning
+            ? Center(
+                child: Transform.scale(
+                  scale: 0.5,
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  "Login",
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
       ),
     );
   }

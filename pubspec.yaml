@@ -45,6 +45,7 @@ dependencies:
   google_fonts: 6.1.0
   riverpod_lint: ^2.3.9
   melos: ^3.4.0
+  flutter_floating_bottom_bar: ^1.2.0
 
 dev_dependencies:
   flutter_test:

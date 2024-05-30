@@ -25,4 +25,34 @@ class AuthState {
   //     role: data['role'] as String,
   //   );
   // }
+
+  void update({
+    Account? account,
+    String? email,
+    String? role,
+    String? uid,
+    bool? isLoggedin,
+  }) {
+    if (account != null) this.account = account;
+    if (email != null) this.email = email;
+    if (role != null) this.role = role;
+    if (uid != null) this.uid = uid;
+    if (isLoggedin != null) this.isLoggedin = isLoggedin;
+  }
+
+  AuthState copy({
+    Account? account,
+    String? email,
+    String? role,
+    String? uid,
+    bool? isLoggedin,
+  }) {
+    return AuthState(
+      account: account ?? this.account,
+      email: email ?? this.email,
+      role: role ?? this.role,
+      uid: uid ?? this.uid,
+      isLoggedin: isLoggedin ?? this.isLoggedin,
+    );
+  }
 }
