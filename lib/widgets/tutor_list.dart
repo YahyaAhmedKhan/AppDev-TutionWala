@@ -33,15 +33,15 @@ class TutorListWidget extends ConsumerWidget {
             return Padding(
               padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
               child: ListView.builder(
-                itemCount: tutorDocs.length * 10,
+                itemCount: tutorDocs.length,
                 itemBuilder: (context, index) {
-                  final tutorDoc = tutorDocs[index ~/ 10];
+                  final tutorDoc = tutorDocs[index];
                   final tutorData = tutorDoc.data() as Map<String, dynamic>;
                   print(tutorData['selectedDays']);
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 15),
                     child: TutorCard(
-                      id: "${tutorDoc.id}-$index",
+                      id: tutorDoc.id,
                       firstName: tutorData['firstName'],
                       lastName: tutorData['lastName'],
                       hourlyRate: tutorData['hourlyRate'],

@@ -170,7 +170,7 @@ class FirestoreService {
         .collection("contracts")
         .where("studentRef", isEqualTo: studentId)
         .where("tutorRef", isEqualTo: tutorId)
-        .where("status", whereIn: ["pending", "accepted"]).get();
+        .where("state", whereIn: ["pending", "accepted"]).get();
     return query;
   }
 

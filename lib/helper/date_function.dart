@@ -10,9 +10,10 @@ Future<List<DateTimeRange>> getContractDateRanges(
     String studentId, String tutorId) async {
   final query = await FirestoreService()
       .getPendingAcceptedContractsByStudentAndTutor(studentId, tutorId);
-
   List<DateTimeRange> contractRanges = query.docs
-      .map((e) => DateTimeRange(start: e['startDate'], end: e['endDate']))
+      .map((e) => DateTimeRange(
+          start: DateTime.parse(e['startDate']),
+          end: DateTime.parse(e['endDate'])))
       .toList();
   return contractRanges;
 }

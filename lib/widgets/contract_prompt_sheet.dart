@@ -6,8 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:date_picker_plus/date_picker_plus.dart';
 import 'package:async_button_builder/async_button_builder.dart';
+import 'package:tution_wala/helper/date_function.dart';
 import 'package:tution_wala/models/contract.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
+import 'package:tution_wala/providers/tutors_provder.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 import 'package:tution_wala/style/color_style.dart';
 
@@ -42,8 +44,17 @@ class _ContractPromptState extends ConsumerState<ContractPrompt> {
     print(contract.tutorRef);
 
     final FirestoreService firestoreService = FirestoreService();
-
-    await Future.delayed(Duration(seconds: 2));
+    final ranges =
+        await getContractDateRanges(contract.studentRef, contract.tutorRef);
+    // print(ranges);
+    ranges.forEach((element) {
+      if (hasOverlap(range, element)) {
+        throw Exception(
+            "Already have a an ongoing contract with this tutor in this range: $element");
+      }
+      ;
+    });
+    // await Future.delayed(Duration(seconds: 1));
     // throw Exception("testing");
 
     final docRef = firestoreService.addContract(contract);
