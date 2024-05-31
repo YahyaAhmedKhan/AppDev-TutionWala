@@ -23,25 +23,31 @@ class ContractPrompt extends ConsumerStatefulWidget {
 }
 
 class _ContractPromptState extends ConsumerState<ContractPrompt> {
-  DateTime? startDate;
-  DateTime? endDate;
+  DateTimeRange range = DateTimeRange(
+      start: DateTime.now(), end: DateTime.now().add(const Duration(days: 7)));
 
-  final today = DateTime.now();
-  final oneWeekFromToday = DateTime.now().add(const Duration(days: 7));
+  // final today = DateTime.now();
+  // final oneWeekFromToday = DateTime.now().add(const Duration(days: 7));
 
-  Future<void> handleHire(DateTimeRange range, String tutorRef) async {
+  Future<void> handleHire() async {
     final contract = Contract(
       days: range.duration.inDays,
       endDate: range.end,
       startDate: range.start,
       state: 'pending',
       studentRef: ref.read(authStateProvider).account!.studentRef!,
-      tutorRef: tutorRef,
+      tutorRef: widget.tutorRef,
     );
+    print(contract.studentRef);
+    print(contract.tutorRef);
 
     final FirestoreService firestoreService = FirestoreService();
-    throw Exception("testgin");
+
+    await Future.delayed(Duration(seconds: 2));
+    // throw Exception("testing");
+
     final docRef = firestoreService.addContract(contract);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -124,13 +130,13 @@ class _ContractPromptState extends ConsumerState<ContractPrompt> {
                             fontSize: 20),
                         splashColor: Colors.transparent,
                         padding: const EdgeInsets.all(0),
-                        selectedRange: DateTimeRange(
-                          start: today,
-                          end: oneWeekFromToday,
-                        ),
+                        selectedRange: range,
                         splashRadius: 0,
                         onRangeSelected: (value) {
-                          print(value.duration.inDays);
+                          setState(() {
+                            range = value;
+                          });
+                          print(range);
                         },
                         slidersColor: Colors.black,
                         highlightColor: Colors.black,
@@ -149,7 +155,13 @@ class _ContractPromptState extends ConsumerState<ContractPrompt> {
               const SizedBox(
                 height: 5,
               ),
-              const HireButton(),
+              HireButton(
+                handleHire: () async {
+                  await handleHire();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Booking made successfilly")));
+                },
+              ),
               const SizedBox(
                 height: 20,
               )
@@ -162,10 +174,10 @@ class _ContractPromptState extends ConsumerState<ContractPrompt> {
 }
 
 class HireButton extends StatefulWidget {
-  final function;
+  final Function() handleHire;
   const HireButton({
     super.key,
-    this.function,
+    required this.handleHire,
   });
 
   @override
@@ -220,7 +232,7 @@ class _HireButtonState extends State<HireButton> {
       ),
       onPressed: () async {
         // await Future.delayed(const Duration(seconds: 2));
-        // widget.function()
+        await widget.handleHire();
         // throw Exception("hehe");
       },
       builder: (context, child, callback, state) {

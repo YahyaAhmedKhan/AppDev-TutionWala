@@ -48,7 +48,9 @@ class TutorDetailPage extends StatelessWidget {
               context: context,
               builder: (context) => SizedBox(
                   height: MediaQuery.of(context).size.height * 0.7,
-                  child: ContractPrompt()),
+                  child: ContractPrompt(
+                    tutorRef: id,
+                  )),
             );
           },
           child: Container(

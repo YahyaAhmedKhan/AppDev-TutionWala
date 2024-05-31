@@ -1,4 +1,3 @@
-import 'dart:js_interop';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -102,7 +101,7 @@ class FirestoreService {
         transaction.set(accountRef, account.toJson());
 
         // Update the accountRef in the Student object
-        student.accountRef = accountRef.path;
+        student.accountRef = accountRef.id;
 
         // Create the student document using the Student object
         DocumentReference studentRef =
@@ -111,7 +110,7 @@ class FirestoreService {
         transaction.set(studentRef, student.toJson());
 
         // Update account document to have studentRef of student document
-        transaction.update(accountRef, {'studentRef': studentRef.path});
+        transaction.update(accountRef, {'studentRef': studentRef.id});
 
         return accountRef;
       });
@@ -139,7 +138,7 @@ class FirestoreService {
         transaction.set(accountRef, account.toJson());
 
         // Update the accountRef in the Tutor object
-        tutor.accountRef = accountRef.path;
+        tutor.accountRef = accountRef.id;
 
         // Create the tutor document using the Tutor object
         DocumentReference studentRef =
@@ -148,7 +147,7 @@ class FirestoreService {
         transaction.set(studentRef, tutor.toJson());
 
         // Update account document to have tutorRef of student document
-        transaction.update(accountRef, {'tutorRef': studentRef.path});
+        transaction.update(accountRef, {'tutorRef': studentRef.id});
 
         return accountRef;
       });
@@ -163,6 +162,16 @@ class FirestoreService {
     final docRef =
         await _firebaseFirestore.collection("contracts").add(contract.toJson());
     return docRef;
+  }
+
+  Future<QuerySnapshot> getPendingAcceptedContractsByStudentAndTutor(
+      String studentId, String tutorId) async {
+    final query = await _firebaseFirestore
+        .collection("contracts")
+        .where("studentRef", isEqualTo: studentId)
+        .where("tutorRef", isEqualTo: tutorId)
+        .where("status", whereIn: ["pending", "accepted"]).get();
+    return query;
   }
 
   Future<Stream<QuerySnapshot>> getTutors() async {
