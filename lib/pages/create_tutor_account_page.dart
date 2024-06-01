@@ -11,7 +11,7 @@ import 'package:tution_wala/models/tutor.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/user-home-page.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
-import 'package:tution_wala/service/auth_service1.dart';
+import 'package:tution_wala/service/auth_service.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 import 'package:tution_wala/style/color_style.dart';
 
@@ -159,7 +159,7 @@ class _CreateTutorAccountPageState
           onStepCancel: _previousStep,
           steps: [
             Step(
-              title: const Text('Name'),
+              title: Text(_currentStep == 0 ? 'Name' : "1"),
               content: Column(
                 children: [
                   LabeledTextField(
@@ -202,7 +202,7 @@ class _CreateTutorAccountPageState
               state: _currentStep >= 0 ? StepState.complete : StepState.indexed,
             ),
             Step(
-              title: const Text('Subjects'),
+              title: Text(_currentStep == 1 ? 'Subject' : '2'),
               content: Column(
                 children: _subjectOptions.map((subject) {
                   return CheckboxListTile(
@@ -224,7 +224,7 @@ class _CreateTutorAccountPageState
               state: _currentStep >= 1 ? StepState.complete : StepState.indexed,
             ),
             Step(
-              title: const Text('a'),
+              title: Text(_currentStep == 2 ? 'Availability' : '3'),
               content: Column(
                 children: _availabilityOptions.map((option) {
                   return RadioListTile(
@@ -243,7 +243,7 @@ class _CreateTutorAccountPageState
               state: _currentStep >= 2 ? StepState.complete : StepState.indexed,
             ),
             Step(
-              title: const Text('Days'),
+              title: Text(_currentStep == 3 ? 'Days' : '4'),
               content: Column(
                 children: _daysOptions.map((day) {
                   return CheckboxListTile(
@@ -265,7 +265,7 @@ class _CreateTutorAccountPageState
               state: _currentStep >= 3 ? StepState.complete : StepState.indexed,
             ),
             Step(
-              title: const Text('Rate'),
+              title: Text(_currentStep == 4 ? 'Rate' : '5'),
               content: Column(
                 children: [
                   LabeledTextField(

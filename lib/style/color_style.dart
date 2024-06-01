@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class ColorStyles {
   static final primaryGreen = Color(0xffbcec7e);
+  static final primaryLightGreen = Color.fromARGB(255, 95, 133, 45);
   static final Map<String, Color> subjectColors = {
     'math': const Color.fromARGB(255, 199, 230, 255),
     'science': const Color.fromARGB(255, 255, 204, 201),

@@ -9,6 +9,7 @@ import 'package:async_button_builder/async_button_builder.dart';
 import 'package:tution_wala/helper/date_function.dart';
 import 'package:tution_wala/models/contract.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
+import 'package:tution_wala/providers/contracts_provider.dart';
 import 'package:tution_wala/providers/tutors_provder.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 import 'package:tution_wala/style/color_style.dart';
@@ -32,33 +33,45 @@ class _ContractPromptState extends ConsumerState<ContractPrompt> {
   // final oneWeekFromToday = DateTime.now().add(const Duration(days: 7));
 
   Future<void> handleHire() async {
-    final contract = Contract(
-      days: range.duration.inDays,
-      endDate: range.end,
-      startDate: range.start,
-      state: 'pending',
-      studentRef: ref.read(authStateProvider).account!.studentRef!,
-      tutorRef: widget.tutorRef,
-    );
-    print(contract.studentRef);
-    print(contract.tutorRef);
+    try {
+      final contract = Contract(
+        days: range.duration.inDays,
+        endDate: range.end,
+        startDate: range.start,
+        offerDate: DateTime.now(),
+        state: 'pending',
+        studentRef: ref.read(authStateProvider).account!.studentRef!,
+        tutorRef: widget.tutorRef,
+      );
+      print(contract.studentRef);
+      print(contract.tutorRef);
 
-    final FirestoreService firestoreService = FirestoreService();
-    final ranges =
-        await getContractDateRanges(contract.studentRef, contract.tutorRef);
-    // print(ranges);
-    ranges.forEach((element) {
-      if (hasOverlap(range, element)) {
-        throw Exception(
-            "Already have a an ongoing contract with this tutor in this range: $element");
+      final FirestoreService firestoreService = FirestoreService();
+      final ranges =
+          await getContractDateRanges(contract.studentRef, contract.tutorRef);
+
+      for (var element in ranges) {
+        if (hasOverlap(range, element)) {
+          throw Exception(
+              "Already have an ongoing contract with this tutor in this range: $element");
+        }
       }
-      ;
-    });
-    // await Future.delayed(Duration(seconds: 1));
-    // throw Exception("testing");
 
-    final docRef = firestoreService.addContract(contract);
-    Navigator.of(context).pop();
+      // Add the contract to the Firestore
+      final docRef = await firestoreService.addContract(contract);
+
+      // Update the student and tutor documents with the new contract ID
+      await firestoreService.updateStudentContracts(
+          contract.studentRef, docRef.id);
+      await firestoreService.updateTutorContracts(contract.tutorRef, docRef.id);
+      ref.refresh(studentContractsProvider);
+      // Navigate back after successfully addin g the contract
+      Navigator.of(context).pop();
+    } catch (e) {
+      print('Error: $e');
+      // Handle error (show message to user, log the error, etc.)
+      rethrow;
+    }
   }
 
   @override

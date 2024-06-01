@@ -11,7 +11,7 @@ import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/signup-page.dart';
 import 'package:tution_wala/pages/user-home-page.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
-import 'package:tution_wala/service/auth_service1.dart';
+import 'package:tution_wala/service/auth_service.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -70,14 +70,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       AuthService authService = AuthService();
       User user = await authService.signInWithEmailAndPassword(email, password);
 
-      // final role = await FirestoreService().getUserRole(user.email!);
-      // if (role == null) {
-      //   throw Exception("Could not find role for email: $email");
-      // }
-      // ref
-      //     .read(authStateProvider.notifier)
-      //     .login(Account(email: user.email!, role: role!));
-
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => AuthCheckPage()),
         (route) => false,
@@ -123,7 +115,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 AuthService().signOut();
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  MaterialPageRoute(builder: (context) => AuthCheckPage()),
                   (route) => false,
                 );
               },
@@ -263,7 +255,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       onPressed: () async {
         UserCredential? userCreds = await signInWithGoogle();
         print("user creds: $userCreds");
-        navigateToHomePage(context);
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => AuthCheckPage()),
+          (route) => false,
+        );
       },
       child: Row(
         mainAxisSize: MainAxisSize.max,

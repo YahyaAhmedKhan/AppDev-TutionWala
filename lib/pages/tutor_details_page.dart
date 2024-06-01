@@ -1,36 +1,53 @@
 import 'dart:ffi';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tution_wala/helper/string_functions.dart';
+import 'package:tution_wala/models/tutor.dart';
 import 'package:tution_wala/style/color_style.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tution_wala/widgets/contract_prompt_sheet.dart';
 
-class TutorDetailPage extends StatelessWidget {
-  final String? firstName;
-  final String? lastName;
-  final double? hourlyRate;
+class TutorDetailPage extends StatefulWidget {
+  // final String? firstName;
+  // final String? lastName;
+  // final double? hourlyRate;
   final String imageUrl;
-  final List<String> subjects;
-  final List<String> days;
-  final double? rating;
-  final String id;
+  // final List<String> subjects;
+  // final List<String> days;
+  // final double? rating;
+  // final String id;
+  final Tutor tutor;
 
   TutorDetailPage({
-    required this.firstName,
-    required this.lastName,
-    required this.hourlyRate,
+    // required this.firstName,
+    // required this.lastName,
+    // required this.hourlyRate,
     required this.imageUrl,
-    required this.subjects,
-    required this.days,
-    required this.id,
-    required this.rating,
+    // required this.subjects,
+    // required this.days,
+    // required this.id,
+    // required this.rating,
+    required this.tutor,
   });
 
   @override
+  State<TutorDetailPage> createState() => _TutorDetailPageState();
+}
+
+class _TutorDetailPageState extends State<TutorDetailPage> {
+  @override
+  bool showFullDesc = false;
   Widget build(BuildContext context) {
+    void toggleShowDesc() {
+      setState(() {
+        showFullDesc = !showFullDesc;
+        print(showFullDesc);
+      });
+    }
+
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Material(
@@ -44,18 +61,18 @@ class TutorDetailPage extends StatelessWidget {
               enableDrag: true,
               isScrollControlled: true,
               showDragHandle: true,
-              backgroundColor: Color.fromARGB(255, 228, 228, 228),
+              backgroundColor: const Color.fromARGB(255, 228, 228, 228),
               context: context,
               builder: (context) => SizedBox(
                   height: MediaQuery.of(context).size.height * 0.7,
                   child: ContractPrompt(
-                    tutorRef: id,
+                    tutorRef: widget.tutor.id!,
                   )),
             );
           },
           child: Container(
             decoration: BoxDecoration(
-                color: Color.fromARGB(255, 72, 200, 78),
+                color: const Color.fromARGB(255, 72, 200, 78),
                 borderRadius: BorderRadius.circular(50)),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 6),
@@ -63,16 +80,16 @@ class TutorDetailPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Hire $firstName",
+                    "Hire ${widget.tutor.firstName}",
                     style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: Colors.white),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
-                  FaIcon(
+                  const FaIcon(
                     FontAwesomeIcons.arrowRight,
                     color: Colors.white,
                   )
@@ -90,16 +107,16 @@ class TutorDetailPage extends StatelessWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                "$firstName $lastName",
+                "${widget.tutor.firstName} ${widget.tutor.lastName}",
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
                   Hero(
-                    tag: id,
+                    tag: widget.tutor.id!,
                     child: Image.asset(
-                      imageUrl,
+                      widget.imageUrl,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -140,14 +157,14 @@ class TutorDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "$firstName $lastName",
+                          "${widget.tutor.firstName} ${widget.tutor.lastName}",
                           style: const TextStyle(
                               fontSize: 28, fontWeight: FontWeight.bold),
                         ),
                         Row(
                           children: [
                             Text(
-                              "$rating/5.0",
+                              "${widget.tutor.rating}/5.0",
                               style: const TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.w700),
                             ),
@@ -161,7 +178,7 @@ class TutorDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "\$${hourlyRate!.toStringAsFixed(2)}/hr",
+                      "\$${widget.tutor.hourlyRate!.toStringAsFixed(2)}/hr",
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.w600),
                     ),
@@ -171,12 +188,12 @@ class TutorDetailPage extends StatelessWidget {
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     Wrap(
                       spacing: 8.0,
-                      children: subjects
+                      children: widget.tutor.subjects
                           .map((subject) => Padding(
                                 padding: const EdgeInsets.only(bottom: 8.0),
                                 child: Container(
@@ -194,7 +211,7 @@ class TutorDetailPage extends StatelessWidget {
                                           capFirstLetter(
                                             subject,
                                           ),
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               color: Colors.black,
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500)),
@@ -210,15 +227,42 @@ class TutorDetailPage extends StatelessWidget {
                     ),
                     Wrap(
                       spacing: 8.0,
-                      children: days
+                      children: widget.tutor.days
                           .map((day) => Chip(label: Text(capFirstLetter(day))))
                           .toList(),
                     ),
-                    const Wrap(
+                    const Padding(
+                      padding: EdgeInsets.only(top: 6, bottom: 6),
+                      child: Text("About:",
+                          style: TextStyle(
+                              fontSize: 24,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w700)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Wrap(
+                        children: [
+                          Text(widget.tutor.description ?? "nop",
+                              maxLines: showFullDesc ? null : 5,
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                            "fdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\nfdsfsafsafa\n")
+                        TextButton(
+                            onPressed: toggleShowDesc,
+                            child:
+                                Text(!showFullDesc ? "Show more" : "Show Less"))
                       ],
+                    ),
+                    SizedBox(
+                      height: 30,
                     )
                   ],
                 ),

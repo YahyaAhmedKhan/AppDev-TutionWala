@@ -3,13 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tution_wala/models/account.dart';
+import 'package:tution_wala/pages/create_role_page.dart';
 import 'package:tution_wala/pages/create_student_account_page.dart';
 import 'package:tution_wala/pages/create_tutor_account_page.dart';
 import 'package:tution_wala/pages/login-page.dart';
 import 'package:tution_wala/pages/tutor_home_page.dart';
 import 'package:tution_wala/pages/user-home-page.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
-import 'package:tution_wala/service/auth_service1.dart';
+import 'package:tution_wala/service/auth_service.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 import 'package:tution_wala/style/font_style.dart';
 
@@ -36,12 +37,21 @@ class _AuthCheckerState extends ConsumerState<AuthCheckPage> {
       DocumentSnapshot accountDoc =
           await FirestoreService().getAccountSnapshotById(firebaseUser.uid);
 
+      print("finding ${firebaseUser.email}");
+      String? role = await FirestoreService().getUserRole(firebaseUser.email!);
+
+      // if no role exists, redirerct to make role page
+
+      if (role == null) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => CreateRolePage()),
+          (route) => false,
+        );
+        return;
+      }
       // auth state notifier object
       AuthStateNotifier authStateNotifier =
           ref.read(authStateProvider.notifier);
-
-      String? role = await FirestoreService().getUserRole(firebaseUser.email!);
-
       authStateNotifier.state
           .update(email: firebaseUser.email, uid: firebaseUser.uid, role: role);
 

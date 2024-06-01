@@ -27,8 +27,6 @@ class AuthService {
     return _instance;
   }
 
-  void a() {}
-
   Stream<User?> authStateChanges() => _firebaseAuth.authStateChanges();
 
   Future<User> signInWithEmailAndPassword(String email, String password) async {

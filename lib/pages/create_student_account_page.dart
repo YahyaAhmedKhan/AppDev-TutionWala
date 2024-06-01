@@ -8,7 +8,7 @@ import 'package:tution_wala/models/account.dart';
 import 'package:tution_wala/models/student.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/user-home-page.dart';
-import 'package:tution_wala/service/auth_service1.dart';
+import 'package:tution_wala/service/auth_service.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 import 'package:tution_wala/style/color_style.dart';
 

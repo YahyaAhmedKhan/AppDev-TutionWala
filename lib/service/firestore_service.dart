@@ -77,7 +77,7 @@ class FirestoreService {
 
   Future<DocumentSnapshot> getTutorById(String docId) async {
     DocumentSnapshot documentSnapshot =
-        await _firebaseFirestore.collection('tutor').doc(docId).get();
+        await _firebaseFirestore.collection('tutors').doc(docId).get();
     if (!documentSnapshot.exists) {
       throw Exception("Tutor with id:$docId does not exist");
     }
@@ -164,6 +164,10 @@ class FirestoreService {
     return docRef;
   }
 
+  Future<Stream<QuerySnapshot>> getTutors() async {
+    return await _firebaseFirestore.collection("tutors").snapshots();
+  }
+
   Future<QuerySnapshot> getPendingAcceptedContractsByStudentAndTutor(
       String studentId, String tutorId) async {
     final query = await _firebaseFirestore
@@ -174,7 +178,40 @@ class FirestoreService {
     return query;
   }
 
-  Future<Stream<QuerySnapshot>> getTutors() async {
-    return await _firebaseFirestore.collection("tutors").snapshots();
+  Future<void> updateStudentContracts(
+      String studentRef, String contractId) async {
+    final studentDoc =
+        _firebaseFirestore.collection('students').doc(studentRef);
+    await studentDoc.update({
+      'contracts': FieldValue.arrayUnion([contractId])
+    });
+  }
+
+  Future<void> updateTutorContracts(String tutorRef, String contractId) async {
+    final tutorDoc = _firebaseFirestore.collection('tutors').doc(tutorRef);
+    await tutorDoc.update({
+      'contracts': FieldValue.arrayUnion([contractId])
+    });
+  }
+
+  Future<List<String>> getContractIdsForStudent(String studentId) async {
+    final DocumentSnapshot studentDoc =
+        await _firebaseFirestore.collection('students').doc(studentId).get();
+    final List<String> contractIds = studentDoc['contracts'].cast<String>();
+    return contractIds;
+  }
+
+  Future<List<QueryDocumentSnapshot>> getContracts(
+      List<String> contractIds) async {
+    final QuerySnapshot contractsSnapshot = await _firebaseFirestore
+        .collection('contracts')
+        .where(FieldPath.documentId, whereIn: contractIds)
+        .get();
+    return contractsSnapshot.docs;
+  }
+
+  Future<void> updateContractState(String contractId, String state) async {
+    final tutorDoc = _firebaseFirestore.collection('contracts').doc(contractId);
+    await tutorDoc.update({'state': state});
   }
 }

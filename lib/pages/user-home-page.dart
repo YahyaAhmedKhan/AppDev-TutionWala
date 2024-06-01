@@ -3,10 +3,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
+import 'package:tution_wala/pages/contracts_page.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
 import 'package:tution_wala/providers/tutors_provder.dart';
-import 'package:tution_wala/service/auth_service1.dart';
+import 'package:tution_wala/service/auth_service.dart';
 import 'package:tution_wala/style/color_style.dart';
+import 'package:tution_wala/widgets/ongoing_contract_list.dart';
+import 'package:tution_wala/widgets/pending_contracts_page.dart';
 import 'package:tution_wala/widgets/tutor_list.dart';
 
 class UserHomePage extends ConsumerStatefulWidget {
@@ -101,7 +104,7 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
       floatingActionButton: Container(
         margin: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(25),
         ),
         child: Material(
@@ -171,18 +174,6 @@ class SearchTutorsPage extends StatelessWidget {
     return const Center(
       child: Text(
         'Search for Tutors Page',
-        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-}
-
-class ContractsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Contracts Page',
         style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
       ),
     );

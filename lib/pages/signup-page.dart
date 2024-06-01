@@ -8,7 +8,7 @@ import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/login-page.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:tution_wala/providers/toggle_provider.dart';
-import 'package:tution_wala/service/auth_service1.dart';
+import 'package:tution_wala/service/auth_service.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 import 'package:tution_wala/widgets/toggle_switch.dart';
 
@@ -158,7 +158,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
               const SizedBox(height: 14),
               // add switch here
 
-              ToggleSwitch(),
+              ToggleSwitch(
+                width: MediaQuery.of(context).size.width * 0.6,
+              ),
               SizedBox(height: 14),
               signUpButton(ref),
               SizedBox(height: 14),
@@ -192,7 +194,11 @@ class _SignupPageState extends ConsumerState<SignupPage> {
       onPressed: () async {
         UserCredential? userCreds = await signInWithGoogle();
         print("user creds: $userCreds");
-        navigateToHomePage(context);
+
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => AuthCheckPage()),
+          (route) => false,
+        );
       },
       child: Row(
         children: [

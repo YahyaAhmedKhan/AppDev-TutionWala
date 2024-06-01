@@ -71,6 +71,10 @@ import 'package:tution_wala/providers/toggle_provider.dart';
 // import 'providers/toggle_provider.dart'; // Updated import path
 
 class ToggleSwitch extends ConsumerWidget {
+  double width;
+
+  ToggleSwitch({required this.width});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Read the current value from the provider
@@ -81,7 +85,9 @@ class ToggleSwitch extends ConsumerWidget {
       textDirection: TextDirection.ltr,
       current: currValue,
       values: const ["Student", "Tutor"],
-      indicatorSize: const Size.fromWidth(200),
+      // indicatorSize: const Size.fromWidth(200),
+      // indicatorSize: double.infinity,
+      indicatorSize: Size.fromWidth(width),
       borderWidth: 0.0,
       onChanged: (value) {
         // Update the state using the provider
