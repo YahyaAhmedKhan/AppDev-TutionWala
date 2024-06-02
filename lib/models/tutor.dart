@@ -51,8 +51,8 @@ class Tutor {
           .map((day) => day as String)
           .toList(),
       hourlyRate: json['hourlyRate'] as double,
-      rating: json['rating'] as double,
-      description: json['description'] as String,
+      rating: json['rating'] as double?,
+      description: json['description'],
     );
   }
 

@@ -201,7 +201,14 @@ class FirestoreService {
     return contractIds;
   }
 
-  Future<List<QueryDocumentSnapshot>> getContracts(
+  Future<List<String>> getContractIdsForTutor(String tutorId) async {
+    final DocumentSnapshot studentDoc =
+        await _firebaseFirestore.collection('tutors').doc(tutorId).get();
+    final List<String> contractIds = studentDoc['contracts'].cast<String>();
+    return contractIds;
+  }
+
+  Future<List<QueryDocumentSnapshot>> getContractsByContractIds(
       List<String> contractIds) async {
     final QuerySnapshot contractsSnapshot = await _firebaseFirestore
         .collection('contracts')

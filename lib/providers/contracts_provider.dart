@@ -13,19 +13,27 @@ final studentContractsProvider = FutureProvider<List<Contract>>((ref) async {
   final contractIds = await firebaseFirestore.getContractIdsForStudent(
       ref.read(authStateProvider).account!.studentRef!);
 
-  final contractsJson = await firebaseFirestore.getContracts(contractIds);
+  final contractsJson =
+      await firebaseFirestore.getContractsByContractIds(contractIds);
 
   final contracts =
       contractsJson.map((e) => Contract.fromFireStore(e)).toList();
   return contracts;
 });
 
-// final tutorContractsProvdider =
-//     FutureProvider<Stream<QuerySnapshot>>((ref) async {
-//   if (ref.read(authStateProvider).role != 'TUTOR') {
-//     throw Exception("wrong role");
-//   }
+final tutorContractsProvider = FutureProvider<List<Contract>>((ref) async {
+  if (ref.read(authStateProvider).role != 'TUTOR') {
+    throw Exception("wrong role");
+  }
+  final firebaseFirestore = FirestoreService();
 
-//   return FirestoreService()
-//       .getContractsByTutorId(ref.read(authStateProvider).account!.tutorRef!);
-// });
+  final contractIds = await firebaseFirestore
+      .getContractIdsForTutor(ref.read(authStateProvider).account!.tutorRef!);
+
+  final contractsJson =
+      await firebaseFirestore.getContractsByContractIds(contractIds);
+
+  final contracts =
+      contractsJson.map((e) => Contract.fromFireStore(e)).toList();
+  return contracts;
+});

@@ -6,7 +6,7 @@ import 'package:tution_wala/models/review.dart';
 class Student {
   String? accountRef;
   final String availability;
-  final List<Contract> contracts;
+  final List<String> contracts;
   final String firstName;
   final String lastName;
   final List<String> subjects;
@@ -29,8 +29,7 @@ class Student {
       accountRef: json['accountRef'] as String,
       availability: json['availability'] as String,
       contracts: (json['contracts'] as List<dynamic>)
-          .map(
-              (contract) => Contract.fromJson(contract as Map<String, dynamic>))
+          .map((contract) => contract.toString())
           .toList(),
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
@@ -44,7 +43,7 @@ class Student {
     return {
       'accountRef': accountRef,
       'availability': availability,
-      'contracts': contracts.map((contract) => contract.toJson()).toList(),
+      'contracts': contracts.map((contract) => contract).toList(),
       'firstName': firstName,
       'lastName': lastName,
       'subjects': subjects,

@@ -164,7 +164,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                         Row(
                           children: [
                             Text(
-                              "${widget.tutor.rating}/5.0",
+                              "${widget.tutor.rating ?? '-'}/5.0",
                               style: const TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.w700),
                             ),
@@ -243,7 +243,9 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                       padding: const EdgeInsets.only(right: 10),
                       child: Wrap(
                         children: [
-                          Text(widget.tutor.description ?? "nop",
+                          Text(
+                              widget.tutor.description ??
+                                  "No description available",
                               maxLines: showFullDesc ? null : 5,
                               style: const TextStyle(
                                   fontSize: 18,
