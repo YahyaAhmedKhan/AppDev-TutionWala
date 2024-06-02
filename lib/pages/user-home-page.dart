@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/contracts_page.dart';
+import 'package:tution_wala/pages/search_tutor_page.dart';
 import 'package:tution_wala/pages/tutor_current_contracts_list.dart';
 import 'package:tution_wala/pages/tutor_list_page.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
@@ -93,7 +94,7 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
           },
           children: [
             TutorsListPage(),
-            Center(),
+            SearchTutorsPage(),
             ContractsPage(),
             ProfilePage(),
           ],
