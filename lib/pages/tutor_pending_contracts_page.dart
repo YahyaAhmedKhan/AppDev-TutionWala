@@ -1,65 +1,70 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tution_wala/models/contract.dart';
-import 'package:tution_wala/models/student.dart';
-import 'package:tution_wala/models/tutor.dart';
-import 'package:tution_wala/pages/tutor_pending_contract_card.dart';
-import 'package:tution_wala/providers/contracts_provider.dart';
-import 'package:tution_wala/service/firestore_service.dart';
-import 'package:tution_wala/widgets/contract_card.dart';
+import 'package:tution_wala/widgets/pending_contracts_page.dart';
+import 'package:tution_wala/widgets/tutor_pending_contract_list.dart';
 
-class TutorPendingContractsPage extends ConsumerWidget {
-  Future<void> handleReject(String id, WidgetRef ref) async {
-    await FirestoreService().updateContractState(id, 'reject');
-    ref.refresh(tutorContractsProvider);
-  }
-
-  Future<void> handleAccept(String id, WidgetRef ref) async {
-    await FirestoreService().updateContractState(id, 'ongoing');
-    ref.refresh(tutorContractsProvider);
-  }
-
+class TutorPendingContractsPage extends StatelessWidget {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final contractsAsyncValue = ref.watch(tutorContractsProvider);
-
-    return contractsAsyncValue.when(
-      data: (contracts) {
-        return ListView.builder(
-          itemCount: contracts.length,
-          itemBuilder: (context, index) {
-            final contract = contracts[index];
-            final tutorFuture =
-                FirestoreService().getStudentById(contract.studentRef);
-
-            return FutureBuilder(
-              future: tutorFuture,
-              builder: (context, snapshot) {
-                if (snapshot.hasData && contract.state.contains('pending')) {
-                  final student = Student.fromFirestore(snapshot.data!);
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: TutorPendingContractCard(
-                      contract: contract,
-                      student: student,
-                      handleReject: handleReject,
-                      handleAccept: handleAccept,
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+            child: Material(
+              color: Color.fromARGB(255, 245, 245, 245),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(
+                    16), // adjust the radius value to your liking
+                bottom: Radius.circular(
+                    16), // adjust the radius value to your liking
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8, left: 20, top: 20),
+                    child: Row(
+                      children: [
+                        Icon(
+                          CupertinoIcons.doc_plaintext,
+                          size: 34,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Text(
+                            "Contract Requests",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w700,
+                              // color: Colors.white
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                } else {
-                  return const Center();
-                }
-              },
-            );
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) {
-        print(stack);
-        return Center(child: Text('Error: $error'));
-      },
+                  ),
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: TutorPendingContractsList(),
+                  ))
+                ],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 50,
+        ),
+        Expanded(
+          child: Center(),
+        ),
+      ],
     );
   }
 }

@@ -107,28 +107,27 @@ String formatStartDate(DateTime startDate) {
 
 String formatDateTime(DateTime dateTime) {
   final formattedDate =
-      '${dateTime.day}th ${getMonthName(dateTime.month)}'; // 23rd May
-  String suffix = 'th';
-  if (dateTime.day >= 11 && dateTime.day <= 13) {
-    suffix = 'th';
+      '${dateTime.day}${getSuffix(dateTime.day)} ${getMonthName(dateTime.month)}';
+  final formattedTime =
+      '${dateTime.hour}:${pad(dateTime.minute)} ${dateTime.hour > 12 ? 'pm' : 'am'}';
+  return '$formattedDate, $formattedTime';
+}
+
+String getSuffix(int day) {
+  if (day >= 11 && day <= 13) {
+    return 'th';
   } else {
-    switch (dateTime.day % 10) {
+    switch (day % 10) {
       case 1:
-        suffix = 'st';
-        break;
+        return 'st';
       case 2:
-        suffix = 'nd';
-        break;
+        return 'nd';
       case 3:
-        suffix = 'rd';
-        break;
+        return 'rd';
       default:
-        suffix = 'th';
+        return 'th';
     }
   }
-  final formattedTime =
-      '${dateTime.hour}:${dateTime.minute} ${dateTime.hour > 12 ? 'pm' : 'am'}'; // 9:23 pm
-  return '$formattedDate, $formattedTime';
 }
 
 String getMonthName(int month) {
@@ -158,8 +157,12 @@ String getMonthName(int month) {
     case 12:
       return 'December';
     default:
-      return '';
+      throw Exception('Invalid month');
   }
+}
+
+String pad(int value) {
+  return value.toString().padLeft(2, '0');
 }
 
 String formatDate(DateTime dateTime) {

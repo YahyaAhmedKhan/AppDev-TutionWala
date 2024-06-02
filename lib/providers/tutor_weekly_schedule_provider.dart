@@ -6,23 +6,9 @@ import 'package:tution_wala/models/tutor.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 
-// class WeeklyScheduleNotifier extends StateNotifier<Map<String, List<String>>?> {
-//   WeeklyScheduleNotifier() : super(null);
-
-//   void setWeeklySchedule(Map<String, List<String>> schedule) {
-//     state = schedule;
-//   }
-// }
-
-// // Provider for WeeklyScheduleNotifier
-// final tutorWeeklyScheduleProvider =
-//     StateNotifierProvider<WeeklyScheduleNotifier, Map<String, List<String>>?>(
-//         (ref) {
-//   return WeeklyScheduleNotifier();
-// });
-
 Future<Map<String, List<Student>>> getWeeklySchedule(
     List<Contract> contracts, List<String> workingDays) async {
+  print("hello");
   // Filter out the ongoing contracts
   List<Contract> ongoingContracts =
       contracts.where((contract) => contract.state == 'ongoing').toList();
@@ -39,10 +25,23 @@ Future<Map<String, List<Student>>> getWeeklySchedule(
     // Only add the day if the tutor works on this day
     if (workingDays.contains(dayName)) {
       // Filter contracts that are still active on the current day
-      List<String> activeContractIds = ongoingContracts
-          .where((contract) => contract.endDate.isAfter(currentDay))
-          .map((contract) => contract.id ?? '')
-          .toList();
+
+      List<String> activeContractIds = [];
+      for (var contract in ongoingContracts) {
+        if (contract.startDate.isBefore(currentDay) ||
+            contract.startDate.isAtSameMomentAs(currentDay)) {
+          if (contract.endDate.isAfter(currentDay) ||
+              contract.endDate.isAtSameMomentAs(currentDay)) {
+            if (contract.id != null) {
+              activeContractIds.add(contract.id!);
+            }
+          }
+        }
+      }
+
+      print("activeContractIds: $activeContractIds");
+
+      // print(i + 1);
 
       final firebaseFirestore = FirestoreService();
 
@@ -54,19 +53,22 @@ Future<Map<String, List<Student>>> getWeeklySchedule(
 
       // Fetch the student details
       List<Student> students = [];
-      for (var contractDoc in contractDocs) {
-        final studentDoc =
-            await firebaseFirestore.getStudentById(contractDoc['studentRef']);
-        final student = Student.fromFirestore(studentDoc);
-        // print(student.firstName);
-        students.add(student);
+
+      if (contractDocs.isNotEmpty) {
+        for (var contractDoc in contractDocs) {
+          final studentDoc =
+              await firebaseFirestore.getStudentById(contractDoc['studentRef']);
+          final student = Student.fromFirestore(studentDoc);
+          // print(student.firstName);
+          students.add(student);
+        }
       }
 
       // Add the list of student objects to the map
       weeklySchedule[dayName] = students;
     }
   }
-  print(weeklySchedule);
+  print("weeklySchedule is $weeklySchedule");
   return weeklySchedule;
 }
 
@@ -86,6 +88,7 @@ final weeklyScheduleProvider =
 
   final contracts =
       contractsJson.map((e) => Contract.fromFireStore(e)).toList();
+  // print(contracts);
 
   final tutor = Tutor.fromFirestore(await firebaseFirestore
       .getTutorById(ref.read(authStateProvider).account!.tutorRef!));

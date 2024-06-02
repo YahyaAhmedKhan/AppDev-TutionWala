@@ -4,16 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
-import 'package:tution_wala/pages/contracts_page.dart';
 import 'package:tution_wala/pages/tutor_pending_contracts_page.dart';
 import 'package:tution_wala/pages/tutor_weekly_schedule.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
-import 'package:tution_wala/providers/tutors_provder.dart';
+import 'package:tution_wala/providers/tutor_weekly_schedule_provider.dart';
 import 'package:tution_wala/service/auth_service.dart';
 import 'package:tution_wala/style/color_style.dart';
-import 'package:tution_wala/widgets/ongoing_contract_list.dart';
-import 'package:tution_wala/widgets/pending_contracts_page.dart';
-import 'package:tution_wala/widgets/tutor_list.dart';
+import 'package:tution_wala/widgets/tutor_pending_contract_list.dart';
 
 class TutorHomePage extends ConsumerStatefulWidget {
   const TutorHomePage({super.key});
@@ -187,7 +184,7 @@ class HomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(bottom: 8, left: 20, top: 20),
                     child: Row(
                       children: [
@@ -198,7 +195,8 @@ class HomePage extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.only(left: 10),
                           child: Text(
-                            "Weekly Schedule",
+                            "Weekly Schedule ",
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
@@ -206,6 +204,11 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                         ),
+                        Spacer(),
+                        Padding(
+                          padding: EdgeInsets.only(right: 10),
+                          child: refreshButton(),
+                        )
                       ],
                     ),
                   ),
@@ -226,6 +229,25 @@ class HomePage extends StatelessWidget {
           child: Center(),
         ),
       ],
+    );
+  }
+}
+
+class refreshButton extends ConsumerWidget {
+  const refreshButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () {
+        print("hi");
+        ref.refresh(weeklyScheduleProvider);
+      },
+      child: Icon(
+        Icons.refresh,
+        size: 34,
+      ),
     );
   }
 }

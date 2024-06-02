@@ -34,10 +34,11 @@ class TutorPendingContractCard extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Material(
+          color: Colors.amber.shade100,
           borderRadius: BorderRadius.circular(20),
           elevation: 2,
           child: Card(
-            color: Colors.white,
+            color: Colors.transparent,
             elevation: 0,
             child: Padding(
               padding: const EdgeInsets.all(12.0),

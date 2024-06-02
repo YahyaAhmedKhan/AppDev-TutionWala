@@ -31,6 +31,7 @@ class WeeklyScheduleWidget extends ConsumerWidget {
 
               // Retrieve the students for the current day
               final students = weeklySchedule[day.toLowerCase()] ?? [];
+              print("students: $students");
 
               return Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -98,8 +99,10 @@ class WeeklyScheduleWidget extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) =>
-          Center(child: Text('Error: ${error.toString()}')),
+      error: (error, stack) {
+        return Center(child: Text('Error: ${error.toString()}'));
+        throw error;
+      },
     );
   }
 }

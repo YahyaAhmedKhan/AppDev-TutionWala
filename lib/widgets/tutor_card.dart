@@ -90,13 +90,19 @@ class TutorCard extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Text(
-                                "${tutor.firstName ?? ''} ${tutor.lastName ?? ''} ",
-                                style: const TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.w600),
+                              Expanded(
+                                child: Text(
+                                  "${tutor.firstName ?? ''} ${tutor.lastName ?? ''} ",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600),
+                                ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(left: 4),
+                                padding:
+                                    const EdgeInsets.only(left: 4, right: 10),
                                 child: Container(
                                   decoration: BoxDecoration(
                                       border: Border.all(width: 1),

@@ -210,6 +210,10 @@ class FirestoreService {
 
   Future<List<QueryDocumentSnapshot>> getContractsByContractIds(
       List<String> contractIds) async {
+    if (contractIds.isEmpty) {
+      return []; // Return an empty list if contractIds is empty
+    }
+
     final QuerySnapshot contractsSnapshot = await _firebaseFirestore
         .collection('contracts')
         .where(FieldPath.documentId, whereIn: contractIds)
