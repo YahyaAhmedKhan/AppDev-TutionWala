@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tution_wala/models/contract.dart';
 import 'package:intl/intl.dart';
+import 'package:tution_wala/models/student.dart';
 import 'package:tution_wala/models/tutor.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
 import 'package:tution_wala/service/firestore_service.dart';
@@ -20,39 +21,57 @@ import 'package:tution_wala/service/firestore_service.dart';
 //   return WeeklyScheduleNotifier();
 // });
 
-Map<String, List<String>> getWeeklySchedule(
-    List<Contract> contracts, List<String> workingDays) {
-  // Filter outthe ongoing contracts
+Future<Map<String, List<Student>>> getWeeklySchedule(
+    List<Contract> contracts, List<String> workingDays) async {
+  // Filter out the ongoing contracts
   List<Contract> ongoingContracts =
       contracts.where((contract) => contract.state == 'ongoing').toList();
 
   // Get current date and initialize map to hold the result
   DateTime now = DateTime.now();
-  Map<String, List<String>> weeklySchedule = {};
+  Map<String, List<Student>> weeklySchedule = {};
 
   // Loop through the next 7 days starting from today
   for (int i = 0; i < 7; i++) {
     DateTime currentDay = now.add(Duration(days: i));
-    String dayName = DateFormat('EEEE').format(currentDay);
+    String dayName = DateFormat('EEEE').format(currentDay).toLowerCase();
 
     // Only add the day if the tutor works on this day
-    if (workingDays.contains(dayName.toLowerCase())) {
+    if (workingDays.contains(dayName)) {
       // Filter contracts that are still active on the current day
-      List<String> activeContracts = ongoingContracts
+      List<String> activeContractIds = ongoingContracts
           .where((contract) => contract.endDate.isAfter(currentDay))
           .map((contract) => contract.id ?? '')
           .toList();
 
-      // Add the list of active contract IDs to the map
-      weeklySchedule[dayName] = activeContracts;
+      final firebaseFirestore = FirestoreService();
+
+      // Fetch the contract documents
+      final contractDocs =
+          await firebaseFirestore.getContractsByContractIds(activeContractIds);
+
+      // print(contractDocs);
+
+      // Fetch the student details
+      List<Student> students = [];
+      for (var contractDoc in contractDocs) {
+        final studentDoc =
+            await firebaseFirestore.getStudentById(contractDoc['studentRef']);
+        final student = Student.fromFirestore(studentDoc);
+        // print(student.firstName);
+        students.add(student);
+      }
+
+      // Add the list of student objects to the map
+      weeklySchedule[dayName] = students;
     }
   }
-
+  print(weeklySchedule);
   return weeklySchedule;
 }
 
 final weeklyScheduleProvider =
-    FutureProvider<Map<String, List<String>>>((ref) async {
+    FutureProvider<Map<String, List<Student>>>((ref) async {
   if (ref.read(authStateProvider).role != 'TUTOR') {
     throw Exception("wrong role");
   }

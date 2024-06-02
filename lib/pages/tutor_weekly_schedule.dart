@@ -27,7 +27,7 @@ class WeeklyScheduleWidget extends ConsumerWidget {
             final day = daysOfWeek[index];
 
             // Retrieve the contract IDs for the current day
-            final contractIds = weeklySchedule[day] ?? [];
+            final students = weeklySchedule[day.toLowerCase()] ?? [];
 
             return Row(
               children: [
@@ -48,7 +48,9 @@ class WeeklyScheduleWidget extends ConsumerWidget {
                     alignment: Alignment.centerLeft,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: contractIds.map((id) => Text(id)).toList(),
+                      children: students
+                          .map((student) => Text(student.firstName))
+                          .toList(),
                     ),
                   ),
                 ),
