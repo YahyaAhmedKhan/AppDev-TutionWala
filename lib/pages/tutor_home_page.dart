@@ -166,7 +166,7 @@ class _TutorHomePageState extends ConsumerState<TutorHomePage> {
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return TutorWeeklySchedule();
+    return WeeklyScheduleWidget();
   }
 }
 
