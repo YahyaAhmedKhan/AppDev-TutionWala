@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tution_wala/models/contract.dart';
 import 'package:tution_wala/models/review.dart';
-import 'package:tution_wala/providers/tutors_provder.dart';
+import 'package:tution_wala/providers/tutors_provider.dart';
 
 class Tutor {
   String? accountRef;
@@ -15,6 +15,7 @@ class Tutor {
   double? rating;
   String? description;
   String? id;
+  String? imageUrl;
 
   Tutor(
       {this.accountRef,
@@ -26,6 +27,7 @@ class Tutor {
       required this.days,
       required this.hourlyRate,
       this.description,
+      this.imageUrl,
       this.rating});
 
   factory Tutor.fromFirestore(DocumentSnapshot doc) {
@@ -53,6 +55,7 @@ class Tutor {
       hourlyRate: json['hourlyRate'] as double,
       rating: json['rating'] as double?,
       description: json['description'],
+      imageUrl: json['imageUrl'],
     );
   }
 
@@ -66,7 +69,8 @@ class Tutor {
       'subjects': subjects,
       'selectedDays': days,
       'hourlyRate': hourlyRate,
-      'description': description
+      'description': description,
+      'imageUrl': imageUrl,
     };
   }
 }

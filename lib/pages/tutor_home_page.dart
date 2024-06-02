@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/tutor_pending_contracts_page.dart';
+import 'package:tution_wala/pages/tutor_profile_page.dart';
 import 'package:tution_wala/pages/tutor_weekly_schedule.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
 import 'package:tution_wala/providers/tutor_weekly_schedule_provider.dart';
 import 'package:tution_wala/service/auth_service.dart';
 import 'package:tution_wala/style/color_style.dart';
+import 'package:tution_wala/widgets/side_drawer.dart';
 import 'package:tution_wala/widgets/tutor_pending_contract_list.dart';
 
 class TutorHomePage extends ConsumerStatefulWidget {
@@ -85,6 +87,7 @@ class _TutorHomePageState extends ConsumerState<TutorHomePage> {
           ),
         ],
       ),
+      drawer: SideDrawer(),
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
@@ -96,7 +99,7 @@ class _TutorHomePageState extends ConsumerState<TutorHomePage> {
           HomePage(),
           SearchTutorsPage(),
           TutorPendingContractsPage(),
-          ProfilePage(),
+          TutorProfilePage(),
         ],
       ),
       extendBody: true,
@@ -258,18 +261,6 @@ class SearchTutorsPage extends StatelessWidget {
     return const Center(
       child: Text(
         'Search for Tutors Page',
-        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-}
-
-class ProfilePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Profile Page',
         style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
       ),
     );

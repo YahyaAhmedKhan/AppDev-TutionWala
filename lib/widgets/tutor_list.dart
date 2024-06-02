@@ -7,7 +7,7 @@ import 'package:tution_wala/constants/image_paths.dart';
 import 'package:tution_wala/helper/string_functions.dart';
 import 'package:tution_wala/models/tutor.dart';
 import 'package:tution_wala/pages/tutor_details_page.dart';
-import 'package:tution_wala/providers/tutors_provder.dart';
+import 'package:tution_wala/providers/tutors_provider.dart';
 import 'package:tution_wala/style/color_style.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:tution_wala/widgets/tutor_card.dart';

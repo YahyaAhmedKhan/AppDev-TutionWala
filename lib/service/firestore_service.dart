@@ -225,4 +225,21 @@ class FirestoreService {
     final tutorDoc = _firebaseFirestore.collection('contracts').doc(contractId);
     await tutorDoc.update({'state': state});
   }
+
+  Future<void> updateTutorInformation(String tutorId, String firstName,
+      String lastName, String description) async {
+    try {
+      final tutorDoc = _firebaseFirestore.collection('tutors').doc(tutorId);
+
+      await tutorDoc.update({
+        'firstName': firstName,
+        'lastName': lastName,
+        'description': description,
+      });
+    } catch (e) {
+      // Handle errors
+      print('Error updating tutor information: $e');
+      throw e;
+    }
+  }
 }

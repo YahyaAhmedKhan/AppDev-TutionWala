@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/contracts_page.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
-import 'package:tution_wala/providers/tutors_provder.dart';
+import 'package:tution_wala/providers/tutors_provider.dart';
 import 'package:tution_wala/service/auth_service.dart';
 import 'package:tution_wala/style/color_style.dart';
 import 'package:tution_wala/widgets/ongoing_contract_list.dart';

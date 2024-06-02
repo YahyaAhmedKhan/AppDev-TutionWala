@@ -10,7 +10,7 @@ import 'package:tution_wala/helper/date_function.dart';
 import 'package:tution_wala/models/contract.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
 import 'package:tution_wala/providers/contracts_provider.dart';
-import 'package:tution_wala/providers/tutors_provder.dart';
+import 'package:tution_wala/providers/tutors_provider.dart';
 import 'package:tution_wala/service/firestore_service.dart';
 import 'package:tution_wala/style/color_style.dart';
 
