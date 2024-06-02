@@ -9,7 +9,7 @@ import 'package:tution_wala/pages/signup-page.dart';
 void main() {
   testGoldens('LoginPage renders correctly', (tester) async {
     // Build the widget
-    final widget = ProviderScope(child: MaterialApp(home: SignupPage()));
+    final widget = ProviderScope(child: MaterialApp(home: LoginPage()));
     await tester.pumpWidgetBuilder(widget);
 
     // Create a golden test builder

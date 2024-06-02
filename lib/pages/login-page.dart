@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tution_wala/helper/auth_functions.dart';
 import 'package:tution_wala/models/account.dart';
 import 'package:tution_wala/models/auth_state.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
