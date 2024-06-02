@@ -20,30 +20,35 @@ class OngoingContractsList extends ConsumerWidget {
     return contractsAsyncValue.when(
       data: (contracts) {
         return ListView.builder(
-          itemCount: contracts.length,
+          itemCount: contracts.length + 1,
           itemBuilder: (context, index) {
-            final contract = contracts[index];
-            final tutorFuture =
-                FirestoreService().getTutorById(contract.tutorRef);
+            if (index < contracts.length) {
+              final contract = contracts[index];
+              final tutorFuture =
+                  FirestoreService().getTutorById(contract.tutorRef);
 
-            return FutureBuilder(
-              future: tutorFuture,
-              builder: (context, snapshot) {
-                if (snapshot.hasData && contract.state.contains('ongoing')) {
-                  final tutor = Tutor.fromFirestore(snapshot.data!);
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: OngoingContractCard(
-                      contract: contract,
-                      tutor: tutor,
-                      handleTerminate: handleDelete,
-                    ),
-                  );
-                } else {
-                  return const Center();
-                }
-              },
-            );
+              return FutureBuilder(
+                future: tutorFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && contract.state.contains('ongoing')) {
+                    final tutor = Tutor.fromFirestore(snapshot.data!);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: OngoingContractCard(
+                        contract: contract,
+                        tutor: tutor,
+                        handleTerminate: handleDelete,
+                      ),
+                    );
+                  } else {
+                    return const Center();
+                  }
+                },
+              );
+            } else
+              return SizedBox(
+                height: 100,
+              );
           },
         );
       },

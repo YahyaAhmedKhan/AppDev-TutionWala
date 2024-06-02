@@ -10,6 +10,7 @@ import 'package:tution_wala/service/auth_service.dart';
 import 'package:tution_wala/style/color_style.dart';
 import 'package:tution_wala/widgets/ongoing_contract_list.dart';
 import 'package:tution_wala/widgets/pending_contracts_page.dart';
+import 'package:tution_wala/widgets/side_drawer.dart';
 import 'package:tution_wala/widgets/tutor_list.dart';
 
 class UserHomePage extends ConsumerStatefulWidget {
@@ -53,6 +54,7 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
     return Scaffold(
       // backgroundColor: const Color.fromARGB(255, 202, 255, 202),
       backgroundColor: ColorStyles.primaryGreen,
+      drawer: SideDrawer(),
       appBar: AppBar(
         leading: Builder(builder: (context) {
           return IconButton(
