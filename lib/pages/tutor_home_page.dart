@@ -3,7 +3,10 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
+import 'package:tution_wala/pages/tutor_current_contracts_list.dart';
+import 'package:tution_wala/pages/tutor_current_contracts_page.dart';
 import 'package:tution_wala/pages/tutor_pending_contracts_page.dart';
 import 'package:tution_wala/pages/tutor_profile_page.dart';
 import 'package:tution_wala/pages/tutor_weekly_schedule.dart';
@@ -57,6 +60,21 @@ class _TutorHomePageState extends ConsumerState<TutorHomePage> {
       // backgroundColor: const Color.fromARGB(255, 202, 255, 202),
       backgroundColor: ColorStyles.primaryGreen,
       appBar: AppBar(
+        title: Row(
+          children: [
+            Text(
+              "TutionWala",
+              style: TextStyle(
+                  fontSize: 30,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w700),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            FaIcon(FontAwesomeIcons.graduationCap)
+          ],
+        ),
         leading: Builder(builder: (context) {
           return IconButton(
               icon: const Icon(Icons.menu),
@@ -64,29 +82,6 @@ class _TutorHomePageState extends ConsumerState<TutorHomePage> {
                 Scaffold.of(context).openDrawer();
               });
         }),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await AuthService().signOut();
-              ref.read(authStateProvider.notifier).logout();
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => AuthCheckPage()),
-                (route) => false,
-              );
-            },
-            icon: const Icon(Icons.logout),
-          ),
-          IconButton(
-            onPressed: () {
-              print(AuthService().getCurrentUserEmail());
-              print(AuthService().getCurrentUser() != null
-                  ? AuthService().getCurrentUser()!.uid
-                  : null);
-            },
-            icon: const Icon(Icons.person),
-          ),
-        ],
       ),
       drawer: SideDrawer(),
       body: PageView(
@@ -98,7 +93,7 @@ class _TutorHomePageState extends ConsumerState<TutorHomePage> {
         },
         children: [
           WeeklySchedulePage(),
-          SearchTutorsPage(),
+          TutorCurrentContractsPage(),
           TutorPendingContractsPage(),
           TutorProfilePage(),
         ],
@@ -160,18 +155,6 @@ class _TutorHomePageState extends ConsumerState<TutorHomePage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class SearchTutorsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Search for Tutors Page',
-        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
       ),
     );
   }
