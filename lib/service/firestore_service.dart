@@ -164,8 +164,8 @@ class FirestoreService {
     return docRef;
   }
 
-  Future<Stream<QuerySnapshot>> getTutors() async {
-    return await _firebaseFirestore.collection("tutors").snapshots();
+  Future<QuerySnapshot<Map<String, dynamic>>> getTutors() async {
+    return await _firebaseFirestore.collection("tutors").get();
   }
 
   Future<QuerySnapshot> getPendingAcceptedContractsByStudentAndTutor(

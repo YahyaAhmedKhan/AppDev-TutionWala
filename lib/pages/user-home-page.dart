@@ -2,8 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tution_wala/pages/auth_check_page.dart';
 import 'package:tution_wala/pages/contracts_page.dart';
+import 'package:tution_wala/pages/tutor_list_page.dart';
 import 'package:tution_wala/providers/auth_state_notifier.dart';
 import 'package:tution_wala/providers/tutors_provider.dart';
 import 'package:tution_wala/service/auth_service.dart';
@@ -95,7 +97,7 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
           });
         },
         children: [
-          HomePage(),
+          TutorsListPage(),
           SearchTutorsPage(),
           ContractsPage(),
           ProfilePage(),
@@ -106,11 +108,11 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
       floatingActionButton: Container(
         margin: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(25),
         ),
         child: Material(
           elevation: 3,
+          color: Color.fromARGB(255, 124, 229, 127),
           borderRadius: BorderRadius.circular(25),
           child: Theme(
             data: ThemeData(
@@ -129,30 +131,59 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
               destinations: const [
                 NavigationDestination(
                   tooltip: "Home",
-                  icon: Icon(Icons.home),
+                  icon: FaIcon(FontAwesomeIcons.houseChimney),
                   label: 'Home',
-                  selectedIcon: Icon(Icons.home, size: 32, color: Colors.green),
+                  selectedIcon: Material(
+                    color: Colors.transparent,
+                    elevation: 10,
+                    shape: CircleBorder(),
+                    child: FaIcon(
+                      FontAwesomeIcons.houseChimney,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 NavigationDestination(
                   tooltip: 'Search tutors',
-                  icon: Icon(Icons.search),
+                  icon: FaIcon(FontAwesomeIcons.magnifyingGlass),
                   label: 'Search tutors',
-                  selectedIcon:
-                      Icon(Icons.search, size: 32, color: Colors.green),
+                  selectedIcon: Material(
+                    color: Colors.transparent,
+                    elevation: 10,
+                    shape: CircleBorder(),
+                    child: FaIcon(
+                      FontAwesomeIcons.magnifyingGlass,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 NavigationDestination(
                   tooltip: "Contracts",
-                  icon: Icon(Icons.format_list_bulleted_add),
+                  icon: FaIcon(FontAwesomeIcons.fileCirclePlus),
                   label: 'Contracts',
-                  selectedIcon: Icon(Icons.format_list_bulleted_add,
-                      size: 32, color: Colors.green),
+                  selectedIcon: Material(
+                    color: Colors.transparent,
+                    elevation: 10,
+                    shape: CircleBorder(),
+                    child: FaIcon(
+                      FontAwesomeIcons.fileCirclePlus,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.person),
+                  icon: FaIcon(FontAwesomeIcons.userPen),
                   tooltip: "Profile",
                   label: 'Profile',
-                  selectedIcon:
-                      Icon(Icons.person, size: 32, color: Colors.green),
+                  selectedIcon: Material(
+                    color: Colors.transparent,
+                    elevation: 10,
+                    shape: CircleBorder(),
+                    child: FaIcon(
+                      FontAwesomeIcons.userPen,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -160,13 +191,6 @@ class _UserHomePageState extends ConsumerState<UserHomePage> {
         ),
       ),
     );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return TutorListWidget();
   }
 }
 

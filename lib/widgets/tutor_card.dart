@@ -5,29 +5,12 @@ import 'package:tution_wala/pages/tutor_details_page.dart';
 import 'package:tution_wala/style/color_style.dart';
 
 class TutorCard extends StatelessWidget {
-  // final String? firstName;
-  // final String? lastName;
-  // final double? hourlyRate;
-  // final String id;
-  // final String? expertise;
-  // final double? experience;
   final String? imageUrl;
-  // final List<String> subjects;
-  // final List<String> days;
-  // final double? rating;
+
   final Tutor tutor;
 
   const TutorCard({
-    // required this.firstName,
-    // required this.lastName,
-    // required this.hourlyRate,
     required this.imageUrl,
-    // required this.experience,
-    // required this.expertise,
-    // required this.id,
-    // required this.subjects,
-    // required this.days,
-    // required this.rating,
     required this.tutor,
   });
 
@@ -50,20 +33,13 @@ class TutorCard extends StatelessWidget {
     // Get indices for available days
     final availableIndices = tutor.days.map((day) => dayIndices[day]).toList();
 
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => TutorDetailPage(
-              // firstName: tutor.firstName,
-              // lastName: tutor.lastName,
-              // hourlyRate: tutor.hourlyRate,
               imageUrl: imageUrl!,
-              // subjects: tutor.subjects,
-              // days: tutor.days,
-              // rating: tutor.rating,
-              // id: tutor.id!,
               tutor: tutor,
             ),
           ),

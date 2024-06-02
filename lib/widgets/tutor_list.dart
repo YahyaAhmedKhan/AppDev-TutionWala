@@ -15,59 +15,31 @@ import 'package:tution_wala/widgets/tutor_card.dart';
 class TutorListWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tutorsStreamAsyncValue = ref.watch(tutorsStreamProvider);
+    final tutorsFutureAsyncValue = ref.watch(tutorsFutureProvider);
 
-    return tutorsStreamAsyncValue.when(
-      data: (stream) {
-        return StreamBuilder<QuerySnapshot>(
-          stream: stream,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
+    return tutorsFutureAsyncValue.when(
+      data: (querySnapshot) {
+        final tutorDocs = querySnapshot.docs;
+
+        return ListView.builder(
+          itemCount: tutorDocs.length + 1,
+          itemBuilder: (context, index) {
+            if (index < tutorDocs.length) {
+              final tutorDoc = tutorDocs[index];
+              final tutorData = tutorDoc.data() as Map<String, dynamic>;
+              final tutor = Tutor.fromFirestore(tutorDoc);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: TutorCard(
+                  tutor: tutor,
+                  imageUrl: boyPics[Random().nextInt(4)],
+                ),
+              );
+            } else {
+              return Container(
+                height: MediaQuery.of(context).size.height * 0.5,
+              );
             }
-
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final tutorDocs = snapshot.data!.docs;
-
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
-              child: ListView.builder(
-                itemCount: tutorDocs.length + 1,
-                itemBuilder: (context, index) {
-                  if (index < tutorDocs.length) {
-                    final tutorDoc = tutorDocs[index];
-                    final tutorData = tutorDoc.data() as Map<String, dynamic>;
-                    final tutor = Tutor.fromFirestore(tutorDoc);
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 15),
-                      child: TutorCard(
-                        tutor: tutor,
-                        // id: tutorDoc.id,
-                        // firstName: tutorData['firstName'],
-                        // lastName: tutorData['lastName'],
-                        // hourlyRate: tutorData['hourlyRate'],
-                        // experience: tutorData['experience'],
-                        // expertise: tutorData['expertise'],
-                        imageUrl: boyPics[Random().nextInt(4)],
-                        // subjects: (tutorData['subjects'] as List<dynamic>)
-                        //     .map((subject) => subject as String)
-                        //     .toList(),
-                        // days: (tutorData['selectedDays'] as List<dynamic>)
-                        //     .map((day) => day as String)
-                        //     .toList(),
-                        // rating: tutorData['rating'],
-                      ),
-                    );
-                  } else
-                    return Container(
-                      height: MediaQuery.of(context).size.height * 0.5,
-                    );
-                },
-              ),
-            );
           },
         );
       },
